@@ -8,21 +8,70 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  fullName      String
-  image         String?   @default("")
-  email         String    @unique
-  password      String
-  fcmToken      String?   @default("")
-  isDeleted     Boolean   @default(false)
-  expirationOtp DateTime?
-  otp           Int?
-  role          UserRole  @default(USER)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  profile       Profile[]
+  id               String            @id @default(auto()) @map("_id") @db.ObjectId
+  email            String            @unique
+  password         String
+  completedProfile Boolean           @default(false)
+  role             UserRole
+  fcmToken         String?           @default("")
+  isDeleted        Boolean           @default(false)
+  expirationOtp    DateTime?
+  otp              Int?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  profile          Profile[]
+  Client           Client[]
+  ServiceProvider  ServiceProvider[]
+  Employ           Employ[]
 
   @@map("Users")
+}
+
+model Client {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  fullName  String
+  location  String
+  gender    Gender
+  age       Int
+  image     String?  @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("Client")
+}
+
+model Employ {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  fullName    String?
+  location    String
+  companyName String
+  image       String?  @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String   @db.ObjectId
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@map("Employ")
+}
+
+model ServiceProvider {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  fullName  String
+  location  String
+  gender    Gender
+  age       Int
+  exprience Int
+  expertise String
+  mobile    String
+  image     String?  @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("Service-Provider")
 }
 
 model Profile {
@@ -46,13 +95,22 @@ model Profile {
 
 enum UserRole {
   ADMIN
-  USER
+  Client
+  SERVICE_PROVIDER
+  EMPLOYER
+  CONCIERGE
 }
 
 enum MaritalStatus {
   SINGLE
   MARRIED
   IN_RELATIONSHIP
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
 }
 
 enum FlagType {
