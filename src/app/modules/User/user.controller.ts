@@ -23,8 +23,8 @@ const getUsers = catchAsync(async (req, res) => {
 });
 
 const getMyProfile = catchAsync(async (req, res) => {
-  const { email } = req.user;
-  const result = await userService.getMyProfile(email);
+  const { id } = req.user;
+  const result = await userService.getMyProfile(id);
   sendResponse(res, {
     message: "User profile retrieved successfully",
     data: result,

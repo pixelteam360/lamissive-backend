@@ -3,7 +3,7 @@ import ApiError from "../../../errors/ApiErrors";
 import * as bcrypt from "bcrypt";
 import { IPaginationOptions } from "../../../interfaces/paginations";
 import { paginationHelper } from "../../../helpars/paginationHelper";
-import { Prisma, User } from "@prisma/client";
+import { Prisma, User, UserRole } from "@prisma/client";
 import { userSearchAbleFields } from "./user.costant";
 import config from "../../../config";
 import { fileUploader } from "../../../helpars/fileUploader";
@@ -77,6 +77,7 @@ const getUsersFromDb = async (
   const result = await prisma.user.findMany({
     where: whereConditons,
     skip,
+    take: limit,
     orderBy:
       options.sortBy && options.sortOrder
         ? {
@@ -87,11 +88,8 @@ const getUsersFromDb = async (
           },
     select: {
       id: true,
-      fullName: true,
       email: true,
       role: true,
-      createdAt: true,
-      updatedAt: true,
     },
   });
   const total = await prisma.user.count({
@@ -111,21 +109,48 @@ const getUsersFromDb = async (
   };
 };
 
-const getMyProfile = async (userEmail: string) => {
-  const userProfile = await prisma.user.findUnique({
+const getMyProfile = async (userId: string) => {
+  const user = await prisma.user.findUnique({
     where: {
-      email: userEmail,
-    },
-    select: {
-      id: true,
-      fullName: true,
-      email: true,
-      createdAt: true,
-      updatedAt: true,
+      id: userId,
     },
   });
 
-  return userProfile;
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const roleFieldMap: Record<UserRole, string> = {
+    CLIENT: "Client",
+    SERVICE_PROVIDER: "ServiceProvider",
+    EMPLOYER: "Employ",
+    CONCIERGE: "Concierge",
+    ADMIN: "Admin",
+  };
+
+  const relatedField = roleFieldMap[user.role];
+
+  const selectFields: any = {
+    id: true,
+    email: true,
+    role: true,
+    [relatedField]: {
+      select: {
+        fullName: true,
+        image: true,
+        location: true,
+      },
+    },
+  };
+
+  const result = await prisma.user.findFirst({
+    where: {
+      id: user.id,
+    },
+    select: selectFields,
+  });
+
+  return result;
 };
 
 const updateProfile = async (payload: User, imageFile: any, userId: string) => {
@@ -137,7 +162,7 @@ const updateProfile = async (payload: User, imageFile: any, userId: string) => {
 
     const createUserProfile = await prisma.user.update({
       where: { id: userId },
-      data: { ...payload, profileImage: image },
+      data: { ...payload },
     });
 
     return createUserProfile;

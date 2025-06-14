@@ -1,9 +1,15 @@
 import { z } from "zod";
 
 const CreateUserValidationSchema = z.object({
-  fullName: z.string(),
   email: z.string().email("Invalid email address").min(1, "Email is required"), // Ensure email is provided and is valid
   password: z.string().min(8, "Password must be at least 8 characters long"),
+  role: z.enum([
+    "CLIENT",
+    "ADMIN",
+    "SERVICE_PROVIDER",
+    "EMPLOYER",
+    "CONCIERGE",
+  ]),
 });
 
 const UserLoginValidationSchema = z.object({
@@ -11,12 +17,7 @@ const UserLoginValidationSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters long"),
 });
 
-const userUpdateSchema = z.object({
-  fullName: z.string().optional(),
-});
-
 export const UserValidation = {
   CreateUserValidationSchema,
   UserLoginValidationSchema,
-  userUpdateSchema,
 };

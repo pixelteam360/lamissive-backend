@@ -3,7 +3,6 @@ import validateRequest from "../../middlewares/validateRequest";
 import { UserValidation } from "./user.validation";
 import { userController } from "./user.controller";
 import auth from "../../middlewares/auth";
-import { UserRole } from "@prisma/client";
 import { fileUploader } from "../../../helpars/fileUploader";
 
 const router = express.Router();
@@ -18,15 +17,14 @@ router
 
 router
   .route("/profile")
-  .get(auth(UserRole.ADMIN, UserRole.USER), userController.getMyProfile)
+  .get(auth(), userController.getMyProfile)
   .put(
-    auth(UserRole.ADMIN, UserRole.USER),
+    auth(),
     fileUploader.uploadSingle,
     (req: Request, res: Response, next: NextFunction) => {
       req.body = JSON.parse(req.body.data);
       next();
     },
-    validateRequest(UserValidation.userUpdateSchema),
     userController.updateProfile
   );
 
