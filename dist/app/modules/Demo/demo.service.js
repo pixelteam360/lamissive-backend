@@ -1,3 +1,4 @@
+"use strict";
 // import prisma from "../../../shared/prisma";
 // import ApiError from "../../../errors/ApiErrors";
 // import * as bcrypt from "bcrypt";
@@ -8,14 +9,12 @@
 // import config from "../../../config";
 // import { fileUploader } from "../../../helpars/fileUploader";
 // import { IUserFilterRequest, TUser } from "./demo.interface";
-
 // const createUserIntoDb = async (payload: TUser) => {
 //   const existingUser = await prisma.user.findFirst({
 //     where: {
 //       email: payload.email,
 //     },
 //   });
-
 //   if (existingUser) {
 //     if (existingUser.email === payload.email) {
 //       throw new ApiError(
@@ -28,7 +27,6 @@
 //     payload.password,
 //     Number(config.bcrypt_salt_rounds)
 //   );
-
 //   const result = await prisma.user.create({
 //     data: { ...payload, password: hashedPassword },
 //     select: {
@@ -39,19 +37,15 @@
 //       updatedAt: true,
 //     },
 //   });
-
 //   return result;
 // };
-
 // const getUsersFromDb = async (
 //   params: IUserFilterRequest,
 //   options: IPaginationOptions
 // ) => {
 //   const { page, limit, skip } = paginationHelper.calculatePagination(options);
 //   const { searchTerm, ...filterData } = params;
-
 //   const andCondions: Prisma.UserWhereInput[] = [];
-
 //   if (params.searchTerm) {
 //     andCondions.push({
 //       OR: userSearchAbleFields.map((field) => ({
@@ -62,7 +56,6 @@
 //       })),
 //     });
 //   }
-
 //   if (Object.keys(filterData).length > 0) {
 //     andCondions.push({
 //       AND: Object.keys(filterData).map((key) => ({
@@ -73,7 +66,6 @@
 //     });
 //   }
 //   const whereConditons: Prisma.UserWhereInput = { AND: andCondions };
-
 //   const result = await prisma.user.findMany({
 //     where: whereConditons,
 //     skip,
@@ -97,7 +89,6 @@
 //   const total = await prisma.user.count({
 //     where: whereConditons,
 //   });
-
 //   if (!result || result.length === 0) {
 //     throw new ApiError(404, "No active users found");
 //   }
@@ -110,7 +101,6 @@
 //     data: result,
 //   };
 // };
-
 // const getSingleUser = async (id: string) => {
 //   const userProfile = await prisma.user.findUnique({
 //     where: {id},
@@ -122,28 +112,22 @@
 //       updatedAt: true,
 //     },
 //   });
-
 //   return userProfile;
 // };
-
 // const updateProfile = async (payload: User, imageFile: any, userId: string) => {
 //   const result = await prisma.$transaction(async (prisma) => {
 //     let image = "";
 //     if (imageFile) {
 //       image = (await fileUploader.uploadToCloudinary(imageFile)).Location;
 //     }
-
 //     const createUserProfile = await prisma.user.update({
 //       where: { id: userId },
 //       data: { ...payload, image },
 //     });
-
 //     return createUserProfile;
 //   });
-
 //   return result;
 // };
-
 // export const userService = {
 //   createUserIntoDb,
 //   getUsersFromDb,

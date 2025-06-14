@@ -1,3 +1,4 @@
+"use strict";
 // import express, { NextFunction, Request, Response } from "express";
 // import validateRequest from "../../middlewares/validateRequest";
 // import { UserValidation } from "./demo.validation";
@@ -5,9 +6,7 @@
 // import { UserRole } from "@prisma/client";
 // import { fileUploader } from "../../../helpars/fileUploader";
 // import { userController } from "./demo.controller";
-
 // const router = express.Router();
-
 // router
 //   .route("/")
 //   .get(userController.getUsers)
@@ -15,7 +14,6 @@
 //     validateRequest(UserValidation.CreateUserValidationSchema),
 //     userController.createUser
 //   );
-
 // router
 //   .route("/profile")
 //   .get(auth(UserRole.ADMIN, UserRole.USER), userController.getSingleUser)
@@ -29,5 +27,4 @@
 //     validateRequest(UserValidation.userUpdateSchema),
 //     userController.updateProfile
 //   );
-
 // export const UserRoutes = router;

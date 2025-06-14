@@ -18,10 +18,10 @@ model User {
   otp             Int?
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
-  profile         Profile[]
   Client          Client[]
   ServiceProvider ServiceProvider[]
   Employ          Employ[]
+  ServiceRating   ServiceRating[]
 
   @@map("Users")
 }
@@ -33,6 +33,7 @@ model Client {
   gender    Gender
   age       Int
   image     String?  @default("")
+  about     String?  @default("")
   let       Float
   lan       Float
   createdAt DateTime @default(now())
@@ -44,30 +45,11 @@ model Client {
 }
 
 model Employ {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  fullName    String
-  location    String
-  image       String?  @default("")
-  let         Float
-  lan         Float
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  userId      String   @db.ObjectId
-  user        User     @relation(fields: [userId], references: [id])
-
-  @@map("Employ")
-}
-
-model ServiceProvider {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   fullName  String
   location  String
-  gender    Gender
-  age       Int
-  exprience Int
-  expertise String
-  mobile    String
   image     String?  @default("")
+  about     String?  @default("")
   let       Float
   lan       Float
   createdAt DateTime @default(now())
@@ -75,26 +57,40 @@ model ServiceProvider {
   userId    String   @db.ObjectId
   user      User     @relation(fields: [userId], references: [id])
 
+  @@map("Employ")
+}
+
+model ServiceProvider {
+  id            String          @id @default(auto()) @map("_id") @db.ObjectId
+  fullName      String
+  location      String
+  gender        Gender
+  age           Int
+  exprience     Int
+  expertise     String
+  mobile        String
+  image         String?         @default("")
+  about         String?         @default("")
+  let           Float
+  lan           Float
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  userId        String          @db.ObjectId
+  user          User            @relation(fields: [userId], references: [id])
+  ServiceRating ServiceRating[]
+
   @@map("Service-Provider")
 }
 
-model Profile {
-  id                 String        @id @default(auto()) @map("_id") @db.ObjectId
-  fullName           String
-  image              String?       @default("")
-  maritalStatus      MaritalStatus
-  location           String
-  maritalVerifyCount Int           @default(0)
-  redFlag            Int           @default(0)
-  yellowFlag         Int           @default(0)
-  greenFlag          Int           @default(0)
-  isDeleted          Boolean       @default(false)
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
-  userId             String        @db.ObjectId
-  user               User          @relation(fields: [userId], references: [id])
+model ServiceRating {
+  id                String          @id @default(auto()) @map("_id") @db.ObjectId
+  rating            Int
+  serviceProviderId String          @db.ObjectId
+  serviceProvider   ServiceProvider @relation(fields: [serviceProviderId], references: [id])
+  userId            String          @db.ObjectId
+  user              User            @relation(fields: [userId], references: [id])
 
-  @@map("Profile")
+  @@map("Service-Rating")
 }
 
 enum UserRole {
