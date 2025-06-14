@@ -8,20 +8,21 @@ datasource db {
 }
 
 model User {
-  id              String            @id @default(auto()) @map("_id") @db.ObjectId
-  email           String            @unique
-  password        String
-  role            UserRole
-  fcmToken        String?           @default("")
-  isDeleted       Boolean           @default(false)
-  expirationOtp   DateTime?
-  otp             Int?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  Client          Client[]
-  ServiceProvider ServiceProvider[]
-  Employ          Employ[]
-  ServiceRating   ServiceRating[]
+  id               String            @id @default(auto()) @map("_id") @db.ObjectId
+  email            String            @unique
+  password         String
+  role             UserRole
+  fcmToken         String?           @default("")
+  isDeleted        Boolean           @default(false)
+  completedProfile Boolean           @default(false)
+  expirationOtp    DateTime?
+  otp              Int?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  Client           Client[]
+  ServiceProvider  ServiceProvider[]
+  Employ           Employ[]
+  ServiceRating    ServiceRating[]
 
   @@map("Users")
 }

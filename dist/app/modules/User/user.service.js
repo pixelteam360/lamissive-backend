@@ -160,6 +160,7 @@ const getMyProfile = (userId) => __awaiter(void 0, void 0, void 0, function* () 
                 fullName: true,
                 image: true,
                 location: true,
+                about: true,
             },
         },
     };

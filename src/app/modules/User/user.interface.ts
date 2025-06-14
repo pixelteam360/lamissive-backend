@@ -6,6 +6,7 @@ export type TUser = {
   password: string;
   role: UserRole;
   isDeleted: boolean;
+  completedProfile: boolean;
   expirationOtp?: Date;
   otp?: number;
   createdAt?: Date;

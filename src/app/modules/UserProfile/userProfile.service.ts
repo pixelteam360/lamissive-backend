@@ -40,7 +40,7 @@ const updateClietnProfile = async (
     throw new ApiError(httpStatus.NOT_FOUND, "User profile not found");
   }
 
-  let image = "";
+  let image = client.image;
   if (imageFile) {
     image = (await fileUploader.uploadToDigitalOcean(imageFile)).Location;
   }
@@ -81,21 +81,21 @@ const updateEmployerProfile = async (
   imageFile: any,
   userId: string
 ) => {
-  const client = await prisma.employ.findFirst({
+  const employ = await prisma.employ.findFirst({
     where: { userId },
   });
 
-  if (!client) {
+  if (!employ) {
     throw new ApiError(httpStatus.NOT_FOUND, "User profile not found");
   }
 
-  let image = "";
+  let image = employ.image;
   if (imageFile) {
     image = (await fileUploader.uploadToDigitalOcean(imageFile)).Location;
   }
 
   const result = await prisma.employ.update({
-    where: { id: client.id },
+    where: { id: employ.id },
     data: { ...payload, image, userId },
   });
 
@@ -130,21 +130,21 @@ const updateServiceProviderProfile = async (
   imageFile: any,
   userId: string
 ) => {
-  const client = await prisma.serviceProvider.findFirst({
+  const serviceProvider = await prisma.serviceProvider.findFirst({
     where: { userId },
   });
 
-  if (!client) {
+  if (!serviceProvider) {
     throw new ApiError(httpStatus.NOT_FOUND, "User profile not found");
   }
 
-  let image = "";
+  let image = serviceProvider.image;
   if (imageFile) {
     image = (await fileUploader.uploadToDigitalOcean(imageFile)).Location;
   }
 
   const result = await prisma.serviceProvider.update({
-    where: { id: client.id },
+    where: { id: serviceProvider.id },
     data: { ...payload, image, userId },
   });
 
