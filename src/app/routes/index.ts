@@ -2,6 +2,8 @@ import express from "express";
 import { AuthRoutes } from "../modules/Auth/auth.routes";
 import { UserRoutes } from "../modules/User/user.routes";
 import { UserProfileRoutes } from "../modules/UserProfile/userProfile.routes";
+import { ClientProjectRoutes } from "../modules/ClientProject/clientProject.routes";
+import { ServiceProviderRoutes } from "../modules/ServiceProvider/serviceProvider.routes";
 
 const router = express.Router();
 
@@ -17,6 +19,14 @@ const moduleRoutes = [
   {
     path: "/user-profile",
     route: UserProfileRoutes,
+  },
+  {
+    path: "/client-Project",
+    route: ClientProjectRoutes,
+  },
+  {
+    path: "/service-provider",
+    route: ServiceProviderRoutes,
   },
 ];
 

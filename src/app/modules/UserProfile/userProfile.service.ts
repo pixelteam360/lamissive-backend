@@ -20,8 +20,17 @@ const createClietnProfile = async (payload: TClientProfile, userId: string) => {
     );
   }
 
-  const result = await prisma.client.create({
-    data: { ...payload, userId },
+  const result = await prisma.$transaction(async (prisma) => {
+    const client = await prisma.client.create({
+      data: { ...payload, userId },
+    });
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { completedProfile: true },
+    });
+
+    return client;
   });
 
   return result;
@@ -57,20 +66,28 @@ const createEmployerProfile = async (
   payload: TEmployProfile,
   userId: string
 ) => {
-  console.log(userId);
-  const client = await prisma.employ.findFirst({
+  const employ = await prisma.employ.findFirst({
     where: { userId },
   });
 
-  if (client) {
+  if (employ) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
       "You have already created your profile"
     );
   }
 
-  const result = await prisma.employ.create({
-    data: { ...payload, userId },
+  const result = await prisma.$transaction(async (prisma) => {
+    const employ = await prisma.employ.create({
+      data: { ...payload, userId },
+    });
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { completedProfile: true },
+    });
+
+    return employ;
   });
 
   return result;
@@ -106,20 +123,28 @@ const createServiceProviderProfile = async (
   payload: TServiceProviderProfile,
   userId: string
 ) => {
-  console.log(userId);
-  const client = await prisma.serviceProvider.findFirst({
+  const serviceProvider = await prisma.serviceProvider.findFirst({
     where: { userId },
   });
 
-  if (client) {
+  if (serviceProvider) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
       "You have already created your profile"
     );
   }
 
-  const result = await prisma.serviceProvider.create({
-    data: { ...payload, userId },
+  const result = await prisma.$transaction(async (prisma) => {
+    const serviceProvider = await prisma.serviceProvider.create({
+      data: { ...payload, userId },
+    });
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { completedProfile: true },
+    });
+
+    return serviceProvider;
   });
 
   return result;

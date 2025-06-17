@@ -24,9 +24,16 @@ const createClietnProfile = (payload, userId) => __awaiter(void 0, void 0, void 
     if (client) {
         throw new ApiErrors_1.default(http_status_1.default.BAD_REQUEST, "You have already created your profile");
     }
-    const result = yield prisma_1.default.client.create({
-        data: Object.assign(Object.assign({}, payload), { userId }),
-    });
+    const result = yield prisma_1.default.$transaction((prisma) => __awaiter(void 0, void 0, void 0, function* () {
+        const client = yield prisma.client.create({
+            data: Object.assign(Object.assign({}, payload), { userId }),
+        });
+        yield prisma.user.update({
+            where: { id: userId },
+            data: { completedProfile: true },
+        });
+        return client;
+    }));
     return result;
 });
 const updateClietnProfile = (payload, imageFile, userId) => __awaiter(void 0, void 0, void 0, function* () {
@@ -47,16 +54,22 @@ const updateClietnProfile = (payload, imageFile, userId) => __awaiter(void 0, vo
     return result;
 });
 const createEmployerProfile = (payload, userId) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(userId);
-    const client = yield prisma_1.default.employ.findFirst({
+    const employ = yield prisma_1.default.employ.findFirst({
         where: { userId },
     });
-    if (client) {
+    if (employ) {
         throw new ApiErrors_1.default(http_status_1.default.BAD_REQUEST, "You have already created your profile");
     }
-    const result = yield prisma_1.default.employ.create({
-        data: Object.assign(Object.assign({}, payload), { userId }),
-    });
+    const result = yield prisma_1.default.$transaction((prisma) => __awaiter(void 0, void 0, void 0, function* () {
+        const employ = yield prisma.employ.create({
+            data: Object.assign(Object.assign({}, payload), { userId }),
+        });
+        yield prisma.user.update({
+            where: { id: userId },
+            data: { completedProfile: true },
+        });
+        return employ;
+    }));
     return result;
 });
 const updateEmployerProfile = (payload, imageFile, userId) => __awaiter(void 0, void 0, void 0, function* () {
@@ -77,16 +90,22 @@ const updateEmployerProfile = (payload, imageFile, userId) => __awaiter(void 0, 
     return result;
 });
 const createServiceProviderProfile = (payload, userId) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(userId);
-    const client = yield prisma_1.default.serviceProvider.findFirst({
+    const serviceProvider = yield prisma_1.default.serviceProvider.findFirst({
         where: { userId },
     });
-    if (client) {
+    if (serviceProvider) {
         throw new ApiErrors_1.default(http_status_1.default.BAD_REQUEST, "You have already created your profile");
     }
-    const result = yield prisma_1.default.serviceProvider.create({
-        data: Object.assign(Object.assign({}, payload), { userId }),
-    });
+    const result = yield prisma_1.default.$transaction((prisma) => __awaiter(void 0, void 0, void 0, function* () {
+        const serviceProvider = yield prisma.serviceProvider.create({
+            data: Object.assign(Object.assign({}, payload), { userId }),
+        });
+        yield prisma.user.update({
+            where: { id: userId },
+            data: { completedProfile: true },
+        });
+        return serviceProvider;
+    }));
     return result;
 });
 const updateServiceProviderProfile = (payload, imageFile, userId) => __awaiter(void 0, void 0, void 0, function* () {

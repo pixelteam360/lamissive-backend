@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const auth_routes_1 = require("../modules/Auth/auth.routes");
 const user_routes_1 = require("../modules/User/user.routes");
 const userProfile_routes_1 = require("../modules/UserProfile/userProfile.routes");
+const clientProject_routes_1 = require("../modules/ClientProject/clientProject.routes");
 const router = express_1.default.Router();
 const moduleRoutes = [
     {
@@ -20,6 +21,10 @@ const moduleRoutes = [
     {
         path: "/user-profile",
         route: userProfile_routes_1.UserProfileRoutes,
+    },
+    {
+        path: "/client-Project",
+        route: clientProject_routes_1.ClientProjectRoutes,
     },
 ];
 moduleRoutes.forEach((route) => router.use(route.path, route.route));

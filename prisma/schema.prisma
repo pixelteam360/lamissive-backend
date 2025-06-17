@@ -8,21 +8,22 @@ datasource db {
 }
 
 model User {
-  id               String            @id @default(auto()) @map("_id") @db.ObjectId
-  email            String            @unique
+  id               String           @id @default(auto()) @map("_id") @db.ObjectId
+  email            String           @unique
   password         String
   role             UserRole
-  fcmToken         String?           @default("")
-  isDeleted        Boolean           @default(false)
-  completedProfile Boolean           @default(false)
+  fcmToken         String?          @default("")
+  isDeleted        Boolean          @default(false)
+  completedProfile Boolean          @default(false)
   expirationOtp    DateTime?
   otp              Int?
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  Client           Client[]
-  ServiceProvider  ServiceProvider[]
-  Employ           Employ[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  Client           Client?
+  ServiceProvider  ServiceProvider?
+  Employ           Employ?
   ServiceRating    ServiceRating[]
+  ClientProject    ClientProject[]
 
   @@map("Users")
 }
@@ -39,7 +40,7 @@ model Client {
   lan       Float
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  userId    String   @db.ObjectId
+  userId    String   @unique @db.ObjectId
   user      User     @relation(fields: [userId], references: [id])
 
   @@map("Client")
@@ -55,32 +56,65 @@ model Employ {
   lan       Float
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  userId    String   @db.ObjectId
+  userId    String   @unique @db.ObjectId
   user      User     @relation(fields: [userId], references: [id])
 
   @@map("Employ")
 }
 
 model ServiceProvider {
-  id            String          @id @default(auto()) @map("_id") @db.ObjectId
-  fullName      String
-  location      String
-  gender        Gender
-  age           Int
-  exprience     Int
-  expertise     String
-  mobile        String
-  image         String?         @default("")
-  about         String?         @default("")
-  let           Float
-  lan           Float
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  userId        String          @db.ObjectId
-  user          User            @relation(fields: [userId], references: [id])
-  ServiceRating ServiceRating[]
+  id               String             @id @default(auto()) @map("_id") @db.ObjectId
+  fullName         String
+  location         String
+  gender           Gender
+  age              Int
+  exprience        Int
+  expertise        Category[]
+  mobile           String
+  image            String?            @default("")
+  about            String?            @default("")
+  let              Float
+  lan              Float
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  userId           String             @unique @db.ObjectId
+  user             User               @relation(fields: [userId], references: [id])
+  ServiceRating    ServiceRating[]
+  ProjectApplicants ProjectApplicants[]
 
   @@map("Service-Provider")
+}
+
+model ClientProject {
+  id                String              @id @default(auto()) @map("_id") @db.ObjectId
+  title             String
+  description       String
+  date              DateTime
+  time              String
+  priceRange        String
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  category          Category
+  status            Status              @default(ONGOING)
+  userId            String              @db.ObjectId
+  user              User                @relation(fields: [userId], references: [id])
+  ProjectApplicants ProjectApplicants[]
+
+  @@map("Client-Projects")
+}
+
+model ProjectApplicants {
+  id                String          @id @default(auto()) @map("_id") @db.ObjectId
+  bidPrice          Float
+  status            BidStatus       @default(PENDING)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  clientProjectId   String          @db.ObjectId
+  serviceProviderId String          @db.ObjectId
+  clientProject     ClientProject   @relation(fields: [clientProjectId], references: [id])
+  ServiceProvider   ServiceProvider @relation(fields: [serviceProviderId], references: [id])
+
+  @@map("Project-Applicants")
 }
 
 model ServiceRating {
@@ -102,20 +136,32 @@ enum UserRole {
   CONCIERGE
 }
 
-enum MaritalStatus {
-  SINGLE
-  MARRIED
-  IN_RELATIONSHIP
-}
-
 enum Gender {
   MALE
   FEMALE
   OTHER
 }
 
-enum FlagType {
-  RED
-  GREEN
-  YELLOW
+enum Category {
+  CLEANING
+  ELECTRICIAN
+  DRIVING
+  PLUMBING
+  MOVING
+  PAINTING
+  FARNITURE
+  LANDSCAPE
+  OTHERS
+}
+
+enum Status {
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+enum BidStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }

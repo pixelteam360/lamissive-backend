@@ -36,7 +36,7 @@ const auth = (...roles) => {
             }
             req.user = verifiedUser;
             if (roles.length && !roles.includes(verifiedUser.role)) {
-                throw new ApiErrors_1.default(http_status_1.default.FORBIDDEN, "Forbidden!");
+                throw new ApiErrors_1.default(http_status_1.default.FORBIDDEN, "Forbidden access!");
             }
             next();
         }

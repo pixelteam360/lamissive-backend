@@ -8,6 +8,8 @@ import { userSearchAbleFields } from "./user.costant";
 import config from "../../../config";
 import { fileUploader } from "../../../helpars/fileUploader";
 import { IUserFilterRequest, TUser } from "./user.interface";
+import { jwtHelpers } from "../../../helpars/jwtHelpers";
+import { Secret } from "jsonwebtoken";
 
 const createUserIntoDb = async (payload: TUser) => {
   const existingUser = await prisma.user.findFirst({
@@ -29,18 +31,25 @@ const createUserIntoDb = async (payload: TUser) => {
     Number(config.bcrypt_salt_rounds)
   );
 
-  const result = await prisma.user.create({
+  const userData = await prisma.user.create({
     data: { ...payload, password: hashedPassword },
-    select: {
-      id: true,
-      email: true,
-      role: true,
-      createdAt: true,
-      updatedAt: true,
-    },
   });
 
-  return result;
+  const accessToken = jwtHelpers.generateToken(
+    {
+      id: userData.id,
+      email: userData.email,
+      role: userData.role,
+    },
+    config.jwt.jwt_secret as Secret,
+    config.jwt.expires_in as string
+  );
+
+  return {
+    role: userData.role,
+    completedProfile: userData.completedProfile,
+    token: accessToken,
+  };
 };
 
 const getUsersFromDb = async (
@@ -134,14 +143,8 @@ const getMyProfile = async (userId: string) => {
     id: true,
     email: true,
     role: true,
-    [relatedField]: {
-      select: {
-        fullName: true,
-        image: true,
-        location: true,
-        about: true,
-      },
-    },
+    completedProfile: true,
+    [relatedField]: true,
   };
 
   const result = await prisma.user.findFirst({

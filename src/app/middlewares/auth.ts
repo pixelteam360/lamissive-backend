@@ -39,7 +39,7 @@ const auth = (...roles: string[]) => {
       req.user = verifiedUser as JwtPayload;
 
       if (roles.length && !roles.includes(verifiedUser.role)) {
-        throw new ApiError(httpStatus.FORBIDDEN, "Forbidden!");
+        throw new ApiError(httpStatus.FORBIDDEN, "Forbidden access!");
       }
       next();
     } catch (err) {

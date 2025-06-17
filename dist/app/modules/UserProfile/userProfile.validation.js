@@ -1,8 +1,19 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserProfileValidation = exports.UpdateServiceProviderProfileSchema = exports.ServiceProviderProfileSchema = exports.UpdateEmployerProfileSchema = exports.EmployerProfileSchema = exports.UpdateClientProfileSchema = exports.ClientProfileSchema = exports.GenderEnum = void 0;
+exports.UserProfileValidation = exports.UpdateServiceProviderProfileSchema = exports.ServiceProviderProfileSchema = exports.UpdateEmployerProfileSchema = exports.EmployerProfileSchema = exports.UpdateClientProfileSchema = exports.ClientProfileSchema = exports.ExpertiseEnum = exports.GenderEnum = void 0;
 const zod_1 = require("zod");
 exports.GenderEnum = zod_1.z.enum(["MALE", "FEMALE", "OTHER"]);
+exports.ExpertiseEnum = zod_1.z.enum([
+    "CLEANING",
+    "ELECTRICIAN",
+    "DRIVING",
+    "PLUMBING",
+    "MOVING",
+    "PAINTING",
+    "FARNITURE",
+    "LANDSCAPE",
+    "OTHERS",
+]);
 exports.ClientProfileSchema = zod_1.z.object({
     fullName: zod_1.z.string(),
     location: zod_1.z.string(),
@@ -37,7 +48,7 @@ exports.ServiceProviderProfileSchema = zod_1.z.object({
     gender: exports.GenderEnum,
     age: zod_1.z.number().int(),
     exprience: zod_1.z.number().int(),
-    expertise: zod_1.z.string(),
+    expertise: exports.ExpertiseEnum,
     mobile: zod_1.z.string(),
     let: zod_1.z.number(),
     lan: zod_1.z.number(),

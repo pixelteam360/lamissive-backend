@@ -1,6 +1,17 @@
 import { z } from "zod";
 
 export const GenderEnum = z.enum(["MALE", "FEMALE", "OTHER"]);
+export const ExpertiseEnum = z.enum([
+  "CLEANING",
+  "ELECTRICIAN",
+  "DRIVING",
+  "PLUMBING",
+  "MOVING",
+  "PAINTING",
+  "FARNITURE",
+  "LANDSCAPE",
+  "OTHERS",
+]);
 
 export const ClientProfileSchema = z.object({
   fullName: z.string(),
@@ -40,7 +51,7 @@ export const ServiceProviderProfileSchema = z.object({
   gender: GenderEnum,
   age: z.number().int(),
   exprience: z.number().int(),
-  expertise: z.string(),
+  expertise: ExpertiseEnum,
   mobile: z.string(),
   let: z.number(),
   lan: z.number(),

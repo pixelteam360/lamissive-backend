@@ -1,4 +1,4 @@
-import { Gender } from "@prisma/client";
+import { Category, Gender } from "@prisma/client";
 
 export type TClientProfile = {
   id: string;
@@ -33,7 +33,7 @@ export type TServiceProviderProfile = {
   gender: Gender; 
   age: number;
   exprience: number;
-  expertise: string;
+  expertise: Category[];
   mobile: string;
   image?: string;
   let: number;
