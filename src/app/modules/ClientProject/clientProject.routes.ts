@@ -24,7 +24,7 @@ router
 
 router
   .route("/:id")
-  .get(auth(UserRole.CLIENT), ClientProjectController.getSingleClientProject)
+  .get(auth(), ClientProjectController.getSingleClientProject)
   .patch(
     auth(UserRole.CLIENT),
     validateRequest(ClientProjectValidation.confirmApplicantSchema),

@@ -24,6 +24,7 @@ model User {
   Employ           Employ?
   ServiceRating    ServiceRating[]
   ClientProject    ClientProject[]
+  Job              Job[]
 
   @@map("Users")
 }
@@ -83,6 +84,7 @@ model ServiceProvider {
   user              User                @relation(fields: [userId], references: [id])
   ServiceRating     ServiceRating[]
   ProjectApplicants ProjectApplicants[]
+  JobApplicants     JobApplicants[]
 
   @@map("Service-Provider")
 }
@@ -117,6 +119,37 @@ model ProjectApplicants {
   ServiceProvider   ServiceProvider @relation(fields: [serviceProviderId], references: [id])
 
   @@map("Project-Applicants")
+}
+
+model Job {
+  id            String          @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  description   String
+  date          DateTime
+  priceRange    String
+  category      Category
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  status        Status          @default(PENDING)
+  userId        String          @db.ObjectId
+  user          User            @relation(fields: [userId], references: [id])
+  JobApplicants JobApplicants[]
+
+  @@map("Job")
+}
+
+model JobApplicants {
+  id                String          @id @default(auto()) @map("_id") @db.ObjectId
+  cv                Float
+  status            BidStatus       @default(PENDING)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  jobId             String          @db.ObjectId
+  serviceProviderId String          @db.ObjectId
+  job               Job             @relation(fields: [jobId], references: [id])
+  ServiceProvider   ServiceProvider @relation(fields: [serviceProviderId], references: [id])
+
+  @@map("Job-Applicants")
 }
 
 model ServiceRating {
