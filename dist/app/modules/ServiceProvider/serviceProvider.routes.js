@@ -12,6 +12,9 @@ const client_1 = require("@prisma/client");
 const serviceProvider_validation_1 = require("./serviceProvider.validation");
 const router = express_1.default.Router();
 router
+    .route("/")
+    .get((0, auth_1.default)(), serviceProvider_controller_1.ServiceProviderController.getAllServiceProvider);
+router
     .route("/project-apply")
     .post((0, auth_1.default)(client_1.UserRole.SERVICE_PROVIDER), (0, validateRequest_1.default)(serviceProvider_validation_1.ServiceProviderValidation.ApplyToProjectValidation), serviceProvider_controller_1.ServiceProviderController.applyToProject);
 router

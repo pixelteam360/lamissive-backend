@@ -123,6 +123,7 @@ const getMyProfile = async (userId: string) => {
     where: {
       id: userId,
     },
+    select: { id: true, role: true, ServiceProvider: { select: { id: true } } },
   });
 
   if (!user) {
@@ -154,6 +155,15 @@ const getMyProfile = async (userId: string) => {
     select: selectFields,
   });
 
+  if (user.role === "SERVICE_PROVIDER") {
+    const completedProject = await prisma.projectApplicants.count({
+      where: {
+        serviceProviderId: user.ServiceProvider?.id,
+        clientProject: { is: { status: "COMPLETED" } },
+      },
+    });
+    return { ...result, completedProject };
+  }
   return result;
 };
 

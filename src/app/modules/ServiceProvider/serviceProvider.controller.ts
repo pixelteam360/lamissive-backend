@@ -1,5 +1,7 @@
 import catchAsync from "../../../shared/catchAsync";
+import pick from "../../../shared/pick";
 import sendResponse from "../../../shared/sendResponse";
+import { ServiceProviderFilterableFields } from "./serviceProvider.costant";
 import { ServiceProviderService } from "./serviceProvider.service";
 
 const applyToProject = catchAsync(async (req, res) => {
@@ -24,9 +26,12 @@ const rateServiceProvider = catchAsync(async (req, res) => {
   });
 });
 
-const getSingleServiceProvider = catchAsync(async (req, res) => {
-  const result = await ServiceProviderService.getSingleServiceProvider(
-    req.params.id
+const getAllServiceProvider = catchAsync(async (req, res) => {
+  const filters = pick(req.query, ServiceProviderFilterableFields);
+  const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
+  const result = await ServiceProviderService.getAllServiceProvider(
+    filters,
+    options
   );
   sendResponse(res, {
     message: "ServiceProvider profile retrieved successfully",
@@ -49,7 +54,7 @@ const updateProfile = catchAsync(async (req, res) => {
 
 export const ServiceProviderController = {
   applyToProject,
-  getSingleServiceProvider,
+  getAllServiceProvider,
   updateProfile,
   rateServiceProvider,
 };

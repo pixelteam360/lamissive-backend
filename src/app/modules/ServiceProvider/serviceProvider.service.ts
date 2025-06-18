@@ -1,7 +1,11 @@
 import prisma from "../../../shared/prisma";
 import ApiError from "../../../errors/ApiErrors";
-import { ServiceProvider } from "@prisma/client";
+import { Prisma, ServiceProvider } from "@prisma/client";
 import httpStatus from "http-status";
+import { IPaginationOptions } from "../../../interfaces/paginations";
+import { paginationHelper } from "../../../helpars/paginationHelper";
+import { IServiceProviderFilterRequest } from "./serviceProvider.interface";
+import { ServiceProviderSearchAbleFields } from "./serviceProvider.costant";
 
 const applyToProject = async (
   payload: { bidPrice: number; clientProjectId: string },
@@ -95,18 +99,63 @@ const rateServiceProvider = async (
   return result;
 };
 
-const getSingleServiceProvider = async (id: string) => {
-  //   const ServiceProviderProfile = await prisma.ServiceProvider.findUnique({
-  //     where: { id },
-  //     select: {
-  //       id: true,
-  //       fullName: true,
-  //       email: true,
-  //       createdAt: true,
-  //       updatedAt: true,
-  //     },
-  //   });
-  //   return ServiceProviderProfile;
+const getAllServiceProvider = async (
+  params: IServiceProviderFilterRequest,
+  options: IPaginationOptions
+) => {
+  const { page, limit, skip } = paginationHelper.calculatePagination(options);
+  const { searchTerm, ...filterData } = params;
+
+  const andCondions: Prisma.ServiceProviderWhereInput[] = [];
+
+  if (params.searchTerm) {
+    andCondions.push({
+      OR: ServiceProviderSearchAbleFields.map((field) => ({
+        [field]: {
+          contains: params.searchTerm,
+          mode: "insensitive",
+        },
+      })),
+    });
+  }
+
+  if (Object.keys(filterData).length > 0) {
+    andCondions.push({
+      AND: Object.keys(filterData).map((key) => ({
+        [key]: {
+          equals: (filterData as any)[key],
+        },
+      })),
+    });
+  }
+  const whereConditons: Prisma.ServiceProviderWhereInput = { AND: andCondions };
+
+  const result = await prisma.serviceProvider.findMany({
+    where: whereConditons,
+    skip,
+    take: limit,
+    orderBy:
+      options.sortBy && options.sortOrder
+        ? {
+            [options.sortBy]: options.sortOrder,
+          }
+        : {
+            createdAt: "desc",
+          },
+  });
+
+  const total = await prisma.serviceProvider.count({
+    where: whereConditons,
+  });
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
 };
 
 const updateProfile = async (
@@ -130,7 +179,7 @@ const updateProfile = async (
 
 export const ServiceProviderService = {
   applyToProject,
-  getSingleServiceProvider,
+  getAllServiceProvider,
   updateProfile,
   rateServiceProvider,
 };

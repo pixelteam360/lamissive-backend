@@ -138,10 +138,12 @@ const getUsersFromDb = (params, options) => __awaiter(void 0, void 0, void 0, fu
     };
 });
 const getMyProfile = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const user = yield prisma_1.default.user.findUnique({
         where: {
             id: userId,
         },
+        select: { id: true, role: true, ServiceProvider: { select: { id: true } } },
     });
     if (!user) {
         throw new Error("User not found");
@@ -167,6 +169,15 @@ const getMyProfile = (userId) => __awaiter(void 0, void 0, void 0, function* () 
         },
         select: selectFields,
     });
+    if (user.role === "SERVICE_PROVIDER") {
+        const completedProject = yield prisma_1.default.projectApplicants.count({
+            where: {
+                serviceProviderId: (_a = user.ServiceProvider) === null || _a === void 0 ? void 0 : _a.id,
+                clientProject: { is: { status: "COMPLETED" } },
+            },
+        });
+        return Object.assign(Object.assign({}, result), { completedProject });
+    }
     return result;
 });
 const updateProfile = (payload, imageFile, userId) => __awaiter(void 0, void 0, void 0, function* () {

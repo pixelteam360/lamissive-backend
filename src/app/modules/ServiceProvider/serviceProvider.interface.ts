@@ -1,6 +1,6 @@
 import { UserRole } from "@prisma/client";
 
-export type TUser = {
+export type TServiceProvider = {
   id?: string;
   fullName: string;
   email: string;
@@ -13,3 +13,9 @@ export type TUser = {
   updatedAt?: Date;
 };
 
+
+export type IServiceProviderFilterRequest = {
+  email?: string | undefined;
+  contactNumber?: string | undefined;
+  searchTerm?: string | undefined;
+};
