@@ -25,10 +25,10 @@ router
 router
   .route("/:id")
   .get(auth(UserRole.CLIENT), ClientProjectController.getSingleClientProject)
-  .put(
+  .patch(
     auth(UserRole.CLIENT),
-    validateRequest(ClientProjectValidation.ClientProjectUpdateSchema),
-    ClientProjectController.getMyProjects
+    validateRequest(ClientProjectValidation.confirmApplicantSchema),
+    ClientProjectController.confirmApplicant
   );
 
 export const ClientProjectRoutes = router;

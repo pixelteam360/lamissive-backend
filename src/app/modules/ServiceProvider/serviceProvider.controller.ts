@@ -13,6 +13,17 @@ const applyToProject = catchAsync(async (req, res) => {
   });
 });
 
+const rateServiceProvider = catchAsync(async (req, res) => {
+  const result = await ServiceProviderService.rateServiceProvider(
+    req.body,
+    req.user.id
+  );
+  sendResponse(res, {
+    message: "Rate Service provider successfully!",
+    data: result,
+  });
+});
+
 const getSingleServiceProvider = catchAsync(async (req, res) => {
   const result = await ServiceProviderService.getSingleServiceProvider(
     req.params.id
@@ -40,4 +51,5 @@ export const ServiceProviderController = {
   applyToProject,
   getSingleServiceProvider,
   updateProfile,
+  rateServiceProvider,
 };

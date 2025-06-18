@@ -63,23 +63,25 @@ model Employ {
 }
 
 model ServiceProvider {
-  id               String             @id @default(auto()) @map("_id") @db.ObjectId
-  fullName         String
-  location         String
-  gender           Gender
-  age              Int
-  exprience        Int
-  expertise        Category[]
-  mobile           String
-  image            String?            @default("")
-  about            String?            @default("")
-  let              Float
-  lan              Float
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  userId           String             @unique @db.ObjectId
-  user             User               @relation(fields: [userId], references: [id])
-  ServiceRating    ServiceRating[]
+  id                String              @id @default(auto()) @map("_id") @db.ObjectId
+  fullName          String
+  location          String
+  gender            Gender
+  age               Int
+  exprience         Int
+  expertise         Category[]
+  mobile            String
+  image             String?             @default("")
+  about             String?             @default("")
+  hourlyRate        Int
+  rating            Float?              @default(0)
+  let               Float
+  lan               Float
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  userId            String              @unique @db.ObjectId
+  user              User                @relation(fields: [userId], references: [id])
+  ServiceRating     ServiceRating[]
   ProjectApplicants ProjectApplicants[]
 
   @@map("Service-Provider")
@@ -95,7 +97,7 @@ model ClientProject {
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
   category          Category
-  status            Status              @default(ONGOING)
+  status            Status              @default(PENDING)
   userId            String              @db.ObjectId
   user              User                @relation(fields: [userId], references: [id])
   ProjectApplicants ProjectApplicants[]
@@ -119,10 +121,10 @@ model ProjectApplicants {
 
 model ServiceRating {
   id                String          @id @default(auto()) @map("_id") @db.ObjectId
-  rating            Int
+  rating            Float
   serviceProviderId String          @db.ObjectId
-  serviceProvider   ServiceProvider @relation(fields: [serviceProviderId], references: [id])
   userId            String          @db.ObjectId
+  serviceProvider   ServiceProvider @relation(fields: [serviceProviderId], references: [id])
   user              User            @relation(fields: [userId], references: [id])
 
   @@map("Service-Rating")
@@ -149,12 +151,13 @@ enum Category {
   PLUMBING
   MOVING
   PAINTING
-  FARNITURE
+  FURNITURE
   LANDSCAPE
   OTHERS
 }
 
 enum Status {
+  PENDING
   ONGOING
   COMPLETED
   CANCELLED

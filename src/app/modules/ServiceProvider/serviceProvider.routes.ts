@@ -17,5 +17,13 @@ router
     ),
     ServiceProviderController.applyToProject
   );
+  
+  router
+  .route("/rate-service")
+  .post(
+    auth(UserRole.CLIENT),
+    validateRequest(ServiceProviderValidation.rateServiceSchema),
+    ServiceProviderController.rateServiceProvider
+  );
 
 export const ServiceProviderRoutes = router;

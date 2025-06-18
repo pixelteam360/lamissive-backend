@@ -8,6 +8,7 @@ import {
   TClientProject,
 } from "./clientProject.interface";
 import { clientProjectSearchAbleFields } from "./clientProject.costant";
+import httpStatus from "http-status";
 
 const createClientProject = async (payload: TClientProject, userId: string) => {
   const result = await prisma.clientProject.create({
@@ -49,7 +50,7 @@ const getClientProjectsFromDb = async (
   const whereConditons: Prisma.ClientProjectWhereInput = { AND: andCondions };
 
   const result = await prisma.clientProject.findMany({
-    where: { ...whereConditons, status: "ONGOING" },
+    where: { ...whereConditons, status: "PENDING" },
     skip,
     take: limit,
     orderBy:
@@ -62,12 +63,9 @@ const getClientProjectsFromDb = async (
           },
   });
   const total = await prisma.clientProject.count({
-    where: { ...whereConditons, status: "ONGOING" },
+    where: { ...whereConditons, status: "PENDING" },
   });
 
-  if (!result || result.length === 0) {
-    throw new ApiError(404, "No active ClientProjects found");
-  }
   return {
     meta: {
       page,
@@ -84,12 +82,11 @@ const getSingleClientProject = async (id: string) => {
     include: {
       ProjectApplicants: {
         select: {
-          id: true,
           bidPrice: true,
           status: true,
-        //   ServiceProvider: {
-        //     select: { image: true, fullName: true },
-        //   },
+          ServiceProvider: {
+            select: { id: true, image: true, fullName: true },
+          },
         },
       },
     },
@@ -106,11 +103,57 @@ const getMyProjects = async (userId: string) => {
   return result;
 };
 
-const confirmApplicant = async (projectId: string, applicantId: string) => {};
+const confirmApplicant = async (
+  payload: { serviceProviderId: string },
+  projectId: string,
+  userId: string
+) => {
+  const myProject = await prisma.clientProject.findFirst({
+    where: { id: projectId, userId },
+    select: { id: true },
+  });
+
+  if (!myProject) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, "This is not your project");
+  }
+
+  const projectApplicants = await prisma.projectApplicants.findFirst({
+    where: {
+      clientProjectId: myProject.id,
+      serviceProviderId: payload.serviceProviderId,
+    },
+    select: { id: true },
+  });
+
+  if (!projectApplicants) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Applicant not found");
+  }
+
+  const result = await prisma.$transaction(async (prisma) => {
+    const updateProject = await prisma.clientProject.update({
+      where: { id: myProject.id },
+      data: { status: "ONGOING" },
+    });
+
+    await prisma.projectApplicants.update({
+      where: { id: projectApplicants.id },
+      data: { status: "ACCEPTED" },
+    });
+
+    await prisma.projectApplicants.deleteMany({
+      where: { clientProjectId: myProject.id, status: { not: "ACCEPTED" } },
+    });
+
+    return updateProject;
+  });
+
+  return result;
+};
 
 export const ClientProjectService = {
   createClientProject,
   getClientProjectsFromDb,
   getSingleClientProject,
   getMyProjects,
+  confirmApplicant,
 };

@@ -20,11 +20,12 @@ const CreateClientProjectValidationSchema = z.object({
   category: CategoryEnum,
 });
 
-const ClientProjectUpdateSchema = z.object({
-  fullName: z.string().optional(),
+const confirmApplicantSchema = z.object({
+  serviceProviderId: z.string(),
 });
+
 
 export const ClientProjectValidation = {
   CreateClientProjectValidationSchema,
-  ClientProjectUpdateSchema,
+  confirmApplicantSchema,
 };

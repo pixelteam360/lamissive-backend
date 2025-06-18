@@ -41,11 +41,17 @@ const getSingleClientProject = (0, catchAsync_1.default)((req, res) => __awaiter
         data: result,
     });
 }));
-const updateProfile = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id } = req === null || req === void 0 ? void 0 : req.user;
-    const result = yield clientProject_service_1.ClientProjectService.updateProfile(req.body, req.file, id);
+const getMyProjects = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield clientProject_service_1.ClientProjectService.getMyProjects(req.user.id);
     (0, sendResponse_1.default)(res, {
-        message: "Profile updated successfully!",
+        message: "Projects retrieved successfully!",
+        data: result,
+    });
+}));
+const confirmApplicant = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield clientProject_service_1.ClientProjectService.confirmApplicant(req.body, req.params.id, req.user.id);
+    (0, sendResponse_1.default)(res, {
+        message: "Applicant confirm successfully!",
         data: result,
     });
 }));
@@ -53,5 +59,6 @@ exports.ClientProjectController = {
     createClientProject,
     getClientProjects,
     getSingleClientProject,
-    updateProfile,
+    getMyProjects,
+    confirmApplicant,
 };

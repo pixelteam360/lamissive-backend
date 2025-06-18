@@ -41,15 +41,27 @@ const getSingleClientProject = catchAsync(async (req, res) => {
 const getMyProjects = catchAsync(async (req, res) => {
   const result = await ClientProjectService.getMyProjects(req.user.id);
   sendResponse(res, {
-    message: "Profile updated successfully!",
+    message: "Projects retrieved successfully!",
     data: result,
   });
 });
 
+const confirmApplicant = catchAsync(async (req, res) => {
+  const result = await ClientProjectService.confirmApplicant(
+    req.body,
+    req.params.id,
+    req.user.id
+  );
+  sendResponse(res, {
+    message: "Applicant confirm successfully!",
+    data: result,
+  });
+});
 
 export const ClientProjectController = {
   createClientProject,
   getClientProjects,
   getSingleClientProject,
   getMyProjects,
+  confirmApplicant,
 };

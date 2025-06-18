@@ -5,7 +5,12 @@ const ApplyToProjectValidation = z.object({
   clientProjectId: z.string(),
 });
 
+const rateServiceSchema = z.object({
+  serviceProviderId: z.string(),
+  rating: z.number(),
+});
 
 export const ServiceProviderValidation = {
   ApplyToProjectValidation,
+  rateServiceSchema,
 };

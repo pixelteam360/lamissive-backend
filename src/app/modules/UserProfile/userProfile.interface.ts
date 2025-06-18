@@ -30,12 +30,13 @@ export type TServiceProviderProfile = {
   id: string;
   fullName: string;
   location: string;
-  gender: Gender; 
+  gender: Gender;
   age: number;
   exprience: number;
   expertise: Category[];
   mobile: string;
   image?: string;
+  hourlyRate: number;
   let: number;
   lan: number;
   createdAt: Date;

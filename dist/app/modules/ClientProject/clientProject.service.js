@@ -27,8 +27,8 @@ exports.ClientProjectService = void 0;
 const prisma_1 = __importDefault(require("../../../shared/prisma"));
 const ApiErrors_1 = __importDefault(require("../../../errors/ApiErrors"));
 const paginationHelper_1 = require("../../../helpars/paginationHelper");
-const fileUploader_1 = require("../../../helpars/fileUploader");
 const clientProject_costant_1 = require("./clientProject.costant");
+const http_status_1 = __importDefault(require("http-status"));
 const createClientProject = (payload, userId) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prisma_1.default.clientProject.create({
         data: Object.assign(Object.assign({}, payload), { userId }),
@@ -60,8 +60,9 @@ const getClientProjectsFromDb = (params, options) => __awaiter(void 0, void 0, v
     }
     const whereConditons = { AND: andCondions };
     const result = yield prisma_1.default.clientProject.findMany({
-        where: whereConditons,
+        where: Object.assign(Object.assign({}, whereConditons), { status: "PENDING" }),
         skip,
+        take: limit,
         orderBy: options.sortBy && options.sortOrder
             ? {
                 [options.sortBy]: options.sortOrder,
@@ -71,11 +72,8 @@ const getClientProjectsFromDb = (params, options) => __awaiter(void 0, void 0, v
             },
     });
     const total = yield prisma_1.default.clientProject.count({
-        where: whereConditons,
+        where: Object.assign(Object.assign({}, whereConditons), { status: "PENDING" }),
     });
-    if (!result || result.length === 0) {
-        throw new ApiErrors_1.default(404, "No active ClientProjects found");
-    }
     return {
         meta: {
             page,
@@ -88,20 +86,57 @@ const getClientProjectsFromDb = (params, options) => __awaiter(void 0, void 0, v
 const getSingleClientProject = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const ClientProjectProfile = yield prisma_1.default.clientProject.findUnique({
         where: { id },
+        include: {
+            ProjectApplicants: {
+                select: {
+                    bidPrice: true,
+                    status: true,
+                    ServiceProvider: {
+                        select: { id: true, image: true, fullName: true },
+                    },
+                },
+            },
+        },
     });
     return ClientProjectProfile;
 });
-const updateProfile = (payload, imageFile, ClientProjectId) => __awaiter(void 0, void 0, void 0, function* () {
+const getMyProjects = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield prisma_1.default.clientProject.findMany({
+        where: { userId },
+    });
+    return result;
+});
+const confirmApplicant = (payload, projectId, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const myProject = yield prisma_1.default.clientProject.findFirst({
+        where: { id: projectId, userId },
+        select: { id: true },
+    });
+    if (!myProject) {
+        throw new ApiErrors_1.default(http_status_1.default.UNAUTHORIZED, "This is not your project");
+    }
+    const projectApplicants = yield prisma_1.default.projectApplicants.findFirst({
+        where: {
+            clientProjectId: myProject.id,
+            serviceProviderId: payload.serviceProviderId,
+        },
+        select: { id: true },
+    });
+    if (!projectApplicants) {
+        throw new ApiErrors_1.default(http_status_1.default.NOT_FOUND, "Applicant not found");
+    }
     const result = yield prisma_1.default.$transaction((prisma) => __awaiter(void 0, void 0, void 0, function* () {
-        let image = "";
-        if (imageFile) {
-            image = (yield fileUploader_1.fileUploader.uploadToCloudinary(imageFile)).Location;
-        }
-        const createClientProjectProfile = yield prisma.clientProject.update({
-            where: { id: ClientProjectId },
-            data: Object.assign({}, payload),
+        const updateProject = yield prisma.clientProject.update({
+            where: { id: myProject.id },
+            data: { status: "ONGOING" },
         });
-        return createClientProjectProfile;
+        yield prisma.projectApplicants.update({
+            where: { id: projectApplicants.id },
+            data: { status: "ACCEPTED" },
+        });
+        yield prisma.projectApplicants.deleteMany({
+            where: { clientProjectId: myProject.id, status: { not: "ACCEPTED" } },
+        });
+        return updateProject;
     }));
     return result;
 });
@@ -109,5 +144,6 @@ exports.ClientProjectService = {
     createClientProject,
     getClientProjectsFromDb,
     getSingleClientProject,
-    updateProfile,
+    getMyProjects,
+    confirmApplicant,
 };

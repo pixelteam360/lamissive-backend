@@ -10,7 +10,7 @@ exports.ExpertiseEnum = zod_1.z.enum([
     "PLUMBING",
     "MOVING",
     "PAINTING",
-    "FARNITURE",
+    "FURNITURE",
     "LANDSCAPE",
     "OTHERS",
 ]);
@@ -48,8 +48,10 @@ exports.ServiceProviderProfileSchema = zod_1.z.object({
     gender: exports.GenderEnum,
     age: zod_1.z.number().int(),
     exprience: zod_1.z.number().int(),
-    expertise: exports.ExpertiseEnum,
+    expertise: zod_1.z.array(exports.ExpertiseEnum),
     mobile: zod_1.z.string(),
+    hourlyRate: zod_1.z.number(),
+    int: zod_1.z.number(),
     let: zod_1.z.number(),
     lan: zod_1.z.number(),
 });

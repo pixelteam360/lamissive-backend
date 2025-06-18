@@ -8,7 +8,7 @@ export const ExpertiseEnum = z.enum([
   "PLUMBING",
   "MOVING",
   "PAINTING",
-  "FARNITURE",
+  "FURNITURE",
   "LANDSCAPE",
   "OTHERS",
 ]);
@@ -51,8 +51,10 @@ export const ServiceProviderProfileSchema = z.object({
   gender: GenderEnum,
   age: z.number().int(),
   exprience: z.number().int(),
-  expertise: ExpertiseEnum,
+  expertise: z.array(ExpertiseEnum), 
   mobile: z.string(),
+  hourlyRate: z.number(),
+  int: z.number(),
   let: z.number(),
   lan: z.number(),
 });
