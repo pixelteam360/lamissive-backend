@@ -29,6 +29,7 @@ router
     auth(UserRole.CLIENT),
     validateRequest(ClientProjectValidation.confirmApplicantSchema),
     ClientProjectController.confirmApplicant
-  );
+  )
+  .delete(auth(UserRole.EMPLOYER), ClientProjectController.rejectApplicant);
 
 export const ClientProjectRoutes = router;

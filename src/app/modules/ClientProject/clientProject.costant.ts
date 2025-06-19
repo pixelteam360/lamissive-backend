@@ -1,8 +1,7 @@
 export const clientProjectFilterableFields = [
-  "email",
+  "title",
   "searchTerm",
-  "role",
-  "fullName",
+  "category",
 ];
 
-export const clientProjectSearchAbleFields = ["email", "fullName"];
+export const clientProjectSearchAbleFields = ["title", "category"];

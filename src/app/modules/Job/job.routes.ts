@@ -11,24 +11,21 @@ router
   .route("/")
   .get(JobController.getJobs)
   .post(
-    auth(UserRole.CLIENT),
-    validateRequest(
-      JobValidation.CreateJobValidationSchema
-    ),
+    auth(UserRole.EMPLOYER),
+    validateRequest(JobValidation.CreateJobValidationSchema),
     JobController.createJob
   );
 
-router
-  .route("/my")
-  .get(auth(UserRole.CLIENT), JobController.getMyProjects);
+router.route("/my").get(auth(UserRole.EMPLOYER), JobController.getMyJobs);
 
 router
   .route("/:id")
   .get(auth(), JobController.getSingleJob)
   .patch(
-    auth(UserRole.CLIENT),
+    auth(UserRole.EMPLOYER),
     validateRequest(JobValidation.confirmApplicantSchema),
     JobController.confirmApplicant
-  );
+  )
+  .delete(auth(UserRole.EMPLOYER), JobController.rejectApplicant);
 
 export const JobRoutes = router;

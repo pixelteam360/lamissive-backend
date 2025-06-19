@@ -81,7 +81,9 @@ const getSingleClientProject = async (id: string) => {
     where: { id },
     include: {
       ProjectApplicants: {
+        where: { status: { not: "REJECTED" } },
         select: {
+          id: true,
           bidPrice: true,
           status: true,
           ServiceProvider: {
@@ -150,10 +152,22 @@ const confirmApplicant = async (
   return result;
 };
 
+
+const rejectApplicant = async (id: string) => {
+  const result = await prisma.projectApplicants.update({
+    where: { id },
+    data: { status: "REJECTED" },
+  });
+
+  return result;
+};
+
+
 export const ClientProjectService = {
   createClientProject,
   getClientProjectsFromDb,
   getSingleClientProject,
   getMyProjects,
   confirmApplicant,
+  rejectApplicant
 };

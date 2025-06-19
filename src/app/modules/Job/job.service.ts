@@ -78,7 +78,9 @@ const getSingleJob = async (id: string) => {
     where: { id },
     include: {
       JobApplicants: {
+        where: { status: { not: "REJECTED" } },
         select: {
+          id: true,
           cv: true,
           status: true,
           ServiceProvider: {
@@ -92,7 +94,7 @@ const getSingleJob = async (id: string) => {
   return JobProfile;
 };
 
-const getMyProjects = async (userId: string) => {
+const getMyJobs = async (userId: string) => {
   const result = await prisma.job.findMany({
     where: { userId },
   });
@@ -102,46 +104,55 @@ const getMyProjects = async (userId: string) => {
 
 const confirmApplicant = async (
   payload: { serviceProviderId: string },
-  projectId: string,
+  jobId: string,
   userId: string
 ) => {
-  const myProject = await prisma.job.findFirst({
-    where: { id: projectId, userId },
+  const myJob = await prisma.job.findFirst({
+    where: { id: jobId, userId },
     select: { id: true },
   });
 
-  if (!myProject) {
-    throw new ApiError(httpStatus.UNAUTHORIZED, "This is not your project");
+  if (!myJob) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, "This is not your Job");
   }
 
-  const projectApplicants = await prisma.jobApplicants.findFirst({
+  const jobApplicants = await prisma.jobApplicants.findFirst({
     where: {
-      jobId: myProject.id,
+      jobId: myJob.id,
       serviceProviderId: payload.serviceProviderId,
     },
     select: { id: true },
   });
 
-  if (!projectApplicants) {
+  if (!jobApplicants) {
     throw new ApiError(httpStatus.NOT_FOUND, "Applicant not found");
   }
 
   const result = await prisma.$transaction(async (prisma) => {
     const updateProject = await prisma.job.update({
-      where: { id: myProject.id },
+      where: { id: myJob.id },
       data: { status: "ONGOING" },
     });
 
-    await prisma.projectApplicants.update({
-      where: { id: projectApplicants.id },
+    await prisma.jobApplicants.update({
+      where: { id: jobApplicants.id },
       data: { status: "ACCEPTED" },
     });
 
     await prisma.jobApplicants.deleteMany({
-      where: { jobId: myProject.id, status: { not: "ACCEPTED" } },
+      where: { jobId: myJob.id, status: { not: "ACCEPTED" } },
     });
 
     return updateProject;
+  });
+
+  return result;
+};
+
+const rejectApplicant = async (id: string) => {
+  const result = await prisma.jobApplicants.update({
+    where: { id },
+    data: { status: "REJECTED" },
   });
 
   return result;
@@ -151,6 +162,7 @@ export const JobService = {
   createJob,
   getJobsFromDb,
   getSingleJob,
-  getMyProjects,
+  getMyJobs,
   confirmApplicant,
+  rejectApplicant,
 };

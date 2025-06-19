@@ -6,6 +6,7 @@ import { IPaginationOptions } from "../../../interfaces/paginations";
 import { paginationHelper } from "../../../helpars/paginationHelper";
 import { IServiceProviderFilterRequest } from "./serviceProvider.interface";
 import { ServiceProviderSearchAbleFields } from "./serviceProvider.costant";
+import { fileUploader } from "../../../helpars/fileUploader";
 
 const applyToProject = async (
   payload: { bidPrice: number; clientProjectId: string },
@@ -55,6 +56,72 @@ const applyToProject = async (
     data: {
       ...payload,
       clientProjectId: payload.clientProjectId,
+      serviceProviderId: serviceProvider.id,
+    },
+  });
+
+  return result;
+};
+
+const applyToJob = async (
+  payload: { jobId: string },
+  cvFile: any,
+  userId: string
+) => {
+  if (!payload.jobId) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Job id not found");
+  }
+
+  if (!cvFile) {
+    throw new ApiError(httpStatus.NOT_FOUND, "CV not found");
+  }
+
+  const project = await prisma.job.findFirst({
+    where: { id: payload.jobId },
+  });
+
+  if (!project) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Job not found");
+  }
+
+  if (project.status !== "PENDING") {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `This project already ${project.status}`
+    );
+  }
+
+  const serviceProvider = await prisma.serviceProvider.findFirst({
+    where: { userId },
+  });
+
+  if (!serviceProvider) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Please complete your profile first"
+    );
+  }
+
+  const isApplyed = await prisma.jobApplicants.findFirst({
+    where: {
+      jobId: payload.jobId,
+      serviceProviderId: serviceProvider.id,
+    },
+  });
+
+  if (isApplyed) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "You have already applyed for this project"
+    );
+  }
+
+  const cv = (await fileUploader.uploadToCloudinary(cvFile)).Location;
+
+  const result = await prisma.jobApplicants.create({
+    data: {
+      cv,
+      jobId: payload.jobId,
       serviceProviderId: serviceProvider.id,
     },
   });
@@ -179,6 +246,7 @@ const updateProfile = async (
 
 export const ServiceProviderService = {
   applyToProject,
+  applyToJob,
   getAllServiceProvider,
   updateProfile,
   rateServiceProvider,

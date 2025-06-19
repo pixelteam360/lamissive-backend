@@ -15,8 +15,8 @@ export const CategoryEnum = z.enum([
 const CreateJobValidationSchema = z.object({
   title: z.string(),
   description: z.string(),
-  time: z.string(),
   priceRange: z.string(),
+  date: z.coerce.date(),
   category: CategoryEnum,
 });
 

@@ -140,7 +140,7 @@ model Job {
 
 model JobApplicants {
   id                String          @id @default(auto()) @map("_id") @db.ObjectId
-  cv                Float
+  cv                String
   status            BidStatus       @default(PENDING)
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt

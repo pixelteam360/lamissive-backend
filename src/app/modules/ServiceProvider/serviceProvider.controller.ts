@@ -15,6 +15,19 @@ const applyToProject = catchAsync(async (req, res) => {
   });
 });
 
+const applyToJob = catchAsync(async (req, res) => {
+  const data = JSON.parse(req.body.data)
+  const result = await ServiceProviderService.applyToJob(
+    data,
+    req.file,
+    req.user.id
+  );
+  sendResponse(res, {
+    message: "Profile updated successfully!",
+    data: result,
+  });
+});
+
 const rateServiceProvider = catchAsync(async (req, res) => {
   const result = await ServiceProviderService.rateServiceProvider(
     req.body,
@@ -54,6 +67,7 @@ const updateProfile = catchAsync(async (req, res) => {
 
 export const ServiceProviderController = {
   applyToProject,
+  applyToJob,
   getAllServiceProvider,
   updateProfile,
   rateServiceProvider,
