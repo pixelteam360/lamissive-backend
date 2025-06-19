@@ -10,13 +10,15 @@ const auth_1 = __importDefault(require("../../middlewares/auth"));
 const serviceProvider_controller_1 = require("./serviceProvider.controller");
 const client_1 = require("@prisma/client");
 const serviceProvider_validation_1 = require("./serviceProvider.validation");
+const fileUploader_1 = require("../../../helpars/fileUploader");
 const router = express_1.default.Router();
-router
-    .route("/")
-    .get((0, auth_1.default)(), serviceProvider_controller_1.ServiceProviderController.getAllServiceProvider);
+router.route("/").get((0, auth_1.default)(), serviceProvider_controller_1.ServiceProviderController.getAllServiceProvider);
 router
     .route("/project-apply")
     .post((0, auth_1.default)(client_1.UserRole.SERVICE_PROVIDER), (0, validateRequest_1.default)(serviceProvider_validation_1.ServiceProviderValidation.ApplyToProjectValidation), serviceProvider_controller_1.ServiceProviderController.applyToProject);
+router
+    .route("/job-apply")
+    .post((0, auth_1.default)(client_1.UserRole.SERVICE_PROVIDER), fileUploader_1.fileUploader.uploadFile, serviceProvider_controller_1.ServiceProviderController.applyToJob);
 router
     .route("/rate-service")
     .post((0, auth_1.default)(client_1.UserRole.CLIENT), (0, validateRequest_1.default)(serviceProvider_validation_1.ServiceProviderValidation.rateServiceSchema), serviceProvider_controller_1.ServiceProviderController.rateServiceProvider);

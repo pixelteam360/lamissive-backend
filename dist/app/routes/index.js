@@ -9,6 +9,7 @@ const user_routes_1 = require("../modules/User/user.routes");
 const userProfile_routes_1 = require("../modules/UserProfile/userProfile.routes");
 const clientProject_routes_1 = require("../modules/ClientProject/clientProject.routes");
 const serviceProvider_routes_1 = require("../modules/ServiceProvider/serviceProvider.routes");
+const job_routes_1 = require("../modules/Job/job.routes");
 const router = express_1.default.Router();
 const moduleRoutes = [
     {
@@ -26,6 +27,10 @@ const moduleRoutes = [
     {
         path: "/client-Project",
         route: clientProject_routes_1.ClientProjectRoutes,
+    },
+    {
+        path: "/jobs",
+        route: job_routes_1.JobRoutes,
     },
     {
         path: "/service-provider",

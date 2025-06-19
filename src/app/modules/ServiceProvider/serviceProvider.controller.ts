@@ -16,7 +16,7 @@ const applyToProject = catchAsync(async (req, res) => {
 });
 
 const applyToJob = catchAsync(async (req, res) => {
-  const data = JSON.parse(req.body.data)
+  const data = JSON.parse(req.body.data);
   const result = await ServiceProviderService.applyToJob(
     data,
     req.file,
@@ -44,7 +44,9 @@ const getAllServiceProvider = catchAsync(async (req, res) => {
   const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
   const result = await ServiceProviderService.getAllServiceProvider(
     filters,
-    options
+    options,
+    req.user.id,
+    req.user.role,
   );
   sendResponse(res, {
     message: "ServiceProvider profile retrieved successfully",

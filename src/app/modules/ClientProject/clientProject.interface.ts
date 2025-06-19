@@ -13,8 +13,7 @@ export type TClientProject = {
 };
 
 export type IClientProjectFilterRequest = {
-  name?: string | undefined;
-  email?: string | undefined;
-  contactNumber?: string | undefined;
+  status?: string | undefined;
+  category?: string | undefined;
   searchTerm?: string | undefined;
 };

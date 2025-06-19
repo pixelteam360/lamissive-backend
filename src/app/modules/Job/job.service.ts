@@ -77,6 +77,11 @@ const getSingleJob = async (id: string) => {
   const JobProfile = await prisma.job.findUnique({
     where: { id },
     include: {
+      user: {
+        select: {
+          Employ: { select: { fullName: true, location: true, image: true } },
+        },
+      },
       JobApplicants: {
         where: { status: { not: "REJECTED" } },
         select: {

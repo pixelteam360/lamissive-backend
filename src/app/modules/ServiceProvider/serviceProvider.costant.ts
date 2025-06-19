@@ -1,8 +1,11 @@
 export const ServiceProviderFilterableFields = [
-  "email",
-  "searchTerm",
-  "role",
   "fullName",
+  "searchTerm",
+  "expertise",
+  "hourlyRate",
+  "location",
 ];
 
-export const ServiceProviderSearchAbleFields = ["email", "fullName"];
+export const ServiceProviderSearchAbleFields = [
+  "fullName",
+];

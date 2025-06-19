@@ -2,9 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.clientProjectSearchAbleFields = exports.clientProjectFilterableFields = void 0;
 exports.clientProjectFilterableFields = [
-    "email",
+    "title",
     "searchTerm",
-    "role",
-    "fullName",
+    "category",
+    "status",
 ];
-exports.clientProjectSearchAbleFields = ["email", "fullName"];
+exports.clientProjectSearchAbleFields = ["title", "category", "status"];

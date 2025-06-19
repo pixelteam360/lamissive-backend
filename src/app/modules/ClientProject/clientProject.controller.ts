@@ -39,7 +39,13 @@ const getSingleClientProject = catchAsync(async (req, res) => {
 });
 
 const getMyProjects = catchAsync(async (req, res) => {
-  const result = await ClientProjectService.getMyProjects(req.user.id);
+  const filters = pick(req.query, clientProjectFilterableFields);
+  const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
+  const result = await ClientProjectService.getMyProjects(
+    filters,
+    options,
+    req.user.id
+  );
   sendResponse(res, {
     message: "Projects retrieved successfully!",
     data: result,
@@ -72,5 +78,5 @@ export const ClientProjectController = {
   getSingleClientProject,
   getMyProjects,
   confirmApplicant,
-  rejectApplicant
+  rejectApplicant,
 };

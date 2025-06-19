@@ -7,6 +7,7 @@ import { paginationHelper } from "../../../helpars/paginationHelper";
 import { IServiceProviderFilterRequest } from "./serviceProvider.interface";
 import { ServiceProviderSearchAbleFields } from "./serviceProvider.costant";
 import { fileUploader } from "../../../helpars/fileUploader";
+import calculateHaversineDistance from "./serviceProvider.utils";
 
 const applyToProject = async (
   payload: { bidPrice: number; clientProjectId: string },
@@ -168,7 +169,9 @@ const rateServiceProvider = async (
 
 const getAllServiceProvider = async (
   params: IServiceProviderFilterRequest,
-  options: IPaginationOptions
+  options: IPaginationOptions,
+  userId: string,
+  userRole: string
 ) => {
   const { page, limit, skip } = paginationHelper.calculatePagination(options);
   const { searchTerm, ...filterData } = params;
@@ -195,9 +198,31 @@ const getAllServiceProvider = async (
       })),
     });
   }
+
+  let currentUser: any;
+
+  if (userRole === "CLIENT") {
+    currentUser = await prisma.user.findFirst({
+      where: { id: userId },
+      include: {
+        Client: { select: { let: true, lan: true } },
+      },
+    });
+  } else if (userRole === "EMPLOYER") {
+    currentUser = await prisma.user.findFirst({
+      where: { id: userId },
+      include: {
+        Employ: { select: { let: true, lan: true } },
+      },
+    });
+  }
+
+  const currentLet = currentUser?.Client?.let ?? currentUser?.Employ?.let ?? 0;
+  const currentLan = currentUser?.Client?.lan ?? currentUser?.Employ?.lan ?? 0;
+
   const whereConditons: Prisma.ServiceProviderWhereInput = { AND: andCondions };
 
-  const result = await prisma.serviceProvider.findMany({
+  const allServiceProvider = await prisma.serviceProvider.findMany({
     where: whereConditons,
     skip,
     take: limit,
@@ -207,7 +232,7 @@ const getAllServiceProvider = async (
             [options.sortBy]: options.sortOrder,
           }
         : {
-            createdAt: "desc",
+            rating: "desc",
           },
   });
 
@@ -215,13 +240,40 @@ const getAllServiceProvider = async (
     where: whereConditons,
   });
 
+  if (
+    userRole === "ADMIN" ||
+    userRole === "CONCIERGE" ||
+    userRole === "SERVICE_PROVIDER"
+  ) {
+    return {
+      meta: {
+        page,
+        limit,
+        total,
+      },
+      data: allServiceProvider,
+    };
+  }
+
+  const sortedUsers = allServiceProvider
+    .map((user) => {
+      const distance = calculateHaversineDistance(
+        currentLet,
+        currentLan,
+        user.let ?? 0,
+        user.lan ?? 0
+      );
+      return { ...user, distance };
+    })
+    .sort((a, b) => a.distance - b.distance);
+
   return {
     meta: {
       page,
       limit,
       total,
     },
-    data: result,
+    data: sortedUsers,
   };
 };
 

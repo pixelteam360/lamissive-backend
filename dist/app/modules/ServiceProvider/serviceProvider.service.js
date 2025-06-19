@@ -29,6 +29,7 @@ const ApiErrors_1 = __importDefault(require("../../../errors/ApiErrors"));
 const http_status_1 = __importDefault(require("http-status"));
 const paginationHelper_1 = require("../../../helpars/paginationHelper");
 const serviceProvider_costant_1 = require("./serviceProvider.costant");
+const fileUploader_1 = require("../../../helpars/fileUploader");
 const applyToProject = (payload, userId) => __awaiter(void 0, void 0, void 0, function* () {
     const project = yield prisma_1.default.clientProject.findFirst({
         where: { id: payload.clientProjectId },
@@ -56,6 +57,47 @@ const applyToProject = (payload, userId) => __awaiter(void 0, void 0, void 0, fu
     }
     const result = yield prisma_1.default.projectApplicants.create({
         data: Object.assign(Object.assign({}, payload), { clientProjectId: payload.clientProjectId, serviceProviderId: serviceProvider.id }),
+    });
+    return result;
+});
+const applyToJob = (payload, cvFile, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!payload.jobId) {
+        throw new ApiErrors_1.default(http_status_1.default.NOT_FOUND, "Job id not found");
+    }
+    if (!cvFile) {
+        throw new ApiErrors_1.default(http_status_1.default.NOT_FOUND, "CV not found");
+    }
+    const project = yield prisma_1.default.job.findFirst({
+        where: { id: payload.jobId },
+    });
+    if (!project) {
+        throw new ApiErrors_1.default(http_status_1.default.NOT_FOUND, "Job not found");
+    }
+    if (project.status !== "PENDING") {
+        throw new ApiErrors_1.default(http_status_1.default.BAD_REQUEST, `This project already ${project.status}`);
+    }
+    const serviceProvider = yield prisma_1.default.serviceProvider.findFirst({
+        where: { userId },
+    });
+    if (!serviceProvider) {
+        throw new ApiErrors_1.default(http_status_1.default.BAD_REQUEST, "Please complete your profile first");
+    }
+    const isApplyed = yield prisma_1.default.jobApplicants.findFirst({
+        where: {
+            jobId: payload.jobId,
+            serviceProviderId: serviceProvider.id,
+        },
+    });
+    if (isApplyed) {
+        throw new ApiErrors_1.default(http_status_1.default.BAD_REQUEST, "You have already applyed for this project");
+    }
+    const cv = (yield fileUploader_1.fileUploader.uploadToCloudinary(cvFile)).Location;
+    const result = yield prisma_1.default.jobApplicants.create({
+        data: {
+            cv,
+            jobId: payload.jobId,
+            serviceProviderId: serviceProvider.id,
+        },
     });
     return result;
 });
@@ -150,6 +192,7 @@ const updateProfile = (payload, imageFile, ServiceProviderId) => __awaiter(void 
 });
 exports.ServiceProviderService = {
     applyToProject,
+    applyToJob,
     getAllServiceProvider,
     updateProfile,
     rateServiceProvider,

@@ -80,6 +80,11 @@ const getSingleClientProject = async (id: string) => {
   const ClientProjectProfile = await prisma.clientProject.findUnique({
     where: { id },
     include: {
+      user: {
+        select: {
+          Client: { select: { fullName: true, location: true, image: true } },
+        },
+      },
       ProjectApplicants: {
         where: { status: { not: "REJECTED" } },
         select: {
@@ -97,12 +102,63 @@ const getSingleClientProject = async (id: string) => {
   return ClientProjectProfile;
 };
 
-const getMyProjects = async (userId: string) => {
+const getMyProjects = async (
+  params: IClientProjectFilterRequest,
+  options: IPaginationOptions,
+  userId: string
+) => {
+  const { page, limit, skip } = paginationHelper.calculatePagination(options);
+  const { searchTerm, ...filterData } = params;
+
+  const andCondions: Prisma.ClientProjectWhereInput[] = [];
+
+  if (params.searchTerm) {
+    andCondions.push({
+      OR: clientProjectSearchAbleFields.map((field) => ({
+        [field]: {
+          contains: params.searchTerm,
+          mode: "insensitive",
+        },
+      })),
+    });
+  }
+
+  if (Object.keys(filterData).length > 0) {
+    andCondions.push({
+      AND: Object.keys(filterData).map((key) => ({
+        [key]: {
+          equals: (filterData as any)[key],
+        },
+      })),
+    });
+  }
+  const whereConditons: Prisma.ClientProjectWhereInput = { AND: andCondions };
+
   const result = await prisma.clientProject.findMany({
-    where: { userId },
+    where: { ...whereConditons, userId },
+    skip,
+    take: limit,
+    orderBy:
+      options.sortBy && options.sortOrder
+        ? {
+            [options.sortBy]: options.sortOrder,
+          }
+        : {
+            createdAt: "desc",
+          },
+  });
+  const total = await prisma.clientProject.count({
+    where: { ...whereConditons, userId },
   });
 
-  return result;
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
 };
 
 const confirmApplicant = async (
@@ -152,7 +208,6 @@ const confirmApplicant = async (
   return result;
 };
 
-
 const rejectApplicant = async (id: string) => {
   const result = await prisma.projectApplicants.update({
     where: { id },
@@ -162,12 +217,11 @@ const rejectApplicant = async (id: string) => {
   return result;
 };
 
-
 export const ClientProjectService = {
   createClientProject,
   getClientProjectsFromDb,
   getSingleClientProject,
   getMyProjects,
   confirmApplicant,
-  rejectApplicant
+  rejectApplicant,
 };

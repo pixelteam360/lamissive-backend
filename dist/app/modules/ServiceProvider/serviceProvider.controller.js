@@ -25,6 +25,14 @@ const applyToProject = (0, catchAsync_1.default)((req, res) => __awaiter(void 0,
         data: result,
     });
 }));
+const applyToJob = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const data = JSON.parse(req.body.data);
+    const result = yield serviceProvider_service_1.ServiceProviderService.applyToJob(data, req.file, req.user.id);
+    (0, sendResponse_1.default)(res, {
+        message: "Profile updated successfully!",
+        data: result,
+    });
+}));
 const rateServiceProvider = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield serviceProvider_service_1.ServiceProviderService.rateServiceProvider(req.body, req.user.id);
     (0, sendResponse_1.default)(res, {
@@ -51,6 +59,7 @@ const updateProfile = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
 }));
 exports.ServiceProviderController = {
     applyToProject,
+    applyToJob,
     getAllServiceProvider,
     updateProfile,
     rateServiceProvider,

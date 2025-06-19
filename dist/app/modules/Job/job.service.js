@@ -23,25 +23,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ClientProjectService = void 0;
+exports.JobService = void 0;
 const prisma_1 = __importDefault(require("../../../shared/prisma"));
 const ApiErrors_1 = __importDefault(require("../../../errors/ApiErrors"));
 const paginationHelper_1 = require("../../../helpars/paginationHelper");
-const clientProject_costant_1 = require("./clientProject.costant");
 const http_status_1 = __importDefault(require("http-status"));
-const createClientProject = (payload, userId) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield prisma_1.default.clientProject.create({
+const job_costant_1 = require("./job.costant");
+const createJob = (payload, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield prisma_1.default.job.create({
         data: Object.assign(Object.assign({}, payload), { userId }),
     });
     return result;
 });
-const getClientProjectsFromDb = (params, options) => __awaiter(void 0, void 0, void 0, function* () {
+const getJobsFromDb = (params, options) => __awaiter(void 0, void 0, void 0, function* () {
     const { page, limit, skip } = paginationHelper_1.paginationHelper.calculatePagination(options);
     const { searchTerm } = params, filterData = __rest(params, ["searchTerm"]);
     const andCondions = [];
     if (params.searchTerm) {
         andCondions.push({
-            OR: clientProject_costant_1.clientProjectSearchAbleFields.map((field) => ({
+            OR: job_costant_1.jobSearchAbleFields.map((field) => ({
                 [field]: {
                     contains: params.searchTerm,
                     mode: "insensitive",
@@ -59,7 +59,7 @@ const getClientProjectsFromDb = (params, options) => __awaiter(void 0, void 0, v
         });
     }
     const whereConditons = { AND: andCondions };
-    const result = yield prisma_1.default.clientProject.findMany({
+    const result = yield prisma_1.default.job.findMany({
         where: Object.assign(Object.assign({}, whereConditons), { status: "PENDING" }),
         skip,
         take: limit,
@@ -71,7 +71,7 @@ const getClientProjectsFromDb = (params, options) => __awaiter(void 0, void 0, v
                 createdAt: "desc",
             },
     });
-    const total = yield prisma_1.default.clientProject.count({
+    const total = yield prisma_1.default.job.count({
         where: Object.assign(Object.assign({}, whereConditons), { status: "PENDING" }),
     });
     return {
@@ -83,20 +83,20 @@ const getClientProjectsFromDb = (params, options) => __awaiter(void 0, void 0, v
         data: result,
     };
 });
-const getSingleClientProject = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    const ClientProjectProfile = yield prisma_1.default.clientProject.findUnique({
+const getSingleJob = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const JobProfile = yield prisma_1.default.job.findUnique({
         where: { id },
         include: {
             user: {
                 select: {
-                    Client: { select: { fullName: true, location: true, image: true } },
+                    Employ: { select: { fullName: true, location: true, image: true } },
                 },
             },
-            ProjectApplicants: {
+            JobApplicants: {
                 where: { status: { not: "REJECTED" } },
                 select: {
                     id: true,
-                    bidPrice: true,
+                    cv: true,
                     status: true,
                     ServiceProvider: {
                         select: { id: true, image: true, fullName: true },
@@ -105,102 +105,60 @@ const getSingleClientProject = (id) => __awaiter(void 0, void 0, void 0, functio
             },
         },
     });
-    return ClientProjectProfile;
+    return JobProfile;
 });
-const getMyProjects = (params, options, userId) => __awaiter(void 0, void 0, void 0, function* () {
-    const { page, limit, skip } = paginationHelper_1.paginationHelper.calculatePagination(options);
-    const { searchTerm } = params, filterData = __rest(params, ["searchTerm"]);
-    const andCondions = [];
-    if (params.searchTerm) {
-        andCondions.push({
-            OR: clientProject_costant_1.clientProjectSearchAbleFields.map((field) => ({
-                [field]: {
-                    contains: params.searchTerm,
-                    mode: "insensitive",
-                },
-            })),
-        });
-    }
-    if (Object.keys(filterData).length > 0) {
-        andCondions.push({
-            AND: Object.keys(filterData).map((key) => ({
-                [key]: {
-                    equals: filterData[key],
-                },
-            })),
-        });
-    }
-    const whereConditons = { AND: andCondions };
-    const result = yield prisma_1.default.clientProject.findMany({
-        where: Object.assign(Object.assign({}, whereConditons), { userId }),
-        skip,
-        take: limit,
-        orderBy: options.sortBy && options.sortOrder
-            ? {
-                [options.sortBy]: options.sortOrder,
-            }
-            : {
-                createdAt: "desc",
-            },
+const getMyJobs = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield prisma_1.default.job.findMany({
+        where: { userId },
     });
-    const total = yield prisma_1.default.clientProject.count({
-        where: Object.assign(Object.assign({}, whereConditons), { userId }),
-    });
-    return {
-        meta: {
-            page,
-            limit,
-            total,
-        },
-        data: result,
-    };
+    return result;
 });
-const confirmApplicant = (payload, projectId, userId) => __awaiter(void 0, void 0, void 0, function* () {
-    const myProject = yield prisma_1.default.clientProject.findFirst({
-        where: { id: projectId, userId },
+const confirmApplicant = (payload, jobId, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const myJob = yield prisma_1.default.job.findFirst({
+        where: { id: jobId, userId },
         select: { id: true },
     });
-    if (!myProject) {
-        throw new ApiErrors_1.default(http_status_1.default.UNAUTHORIZED, "This is not your project");
+    if (!myJob) {
+        throw new ApiErrors_1.default(http_status_1.default.UNAUTHORIZED, "This is not your Job");
     }
-    const projectApplicants = yield prisma_1.default.projectApplicants.findFirst({
+    const jobApplicants = yield prisma_1.default.jobApplicants.findFirst({
         where: {
-            clientProjectId: myProject.id,
+            jobId: myJob.id,
             serviceProviderId: payload.serviceProviderId,
         },
         select: { id: true },
     });
-    if (!projectApplicants) {
+    if (!jobApplicants) {
         throw new ApiErrors_1.default(http_status_1.default.NOT_FOUND, "Applicant not found");
     }
     const result = yield prisma_1.default.$transaction((prisma) => __awaiter(void 0, void 0, void 0, function* () {
-        const updateProject = yield prisma.clientProject.update({
-            where: { id: myProject.id },
+        const updateProject = yield prisma.job.update({
+            where: { id: myJob.id },
             data: { status: "ONGOING" },
         });
-        yield prisma.projectApplicants.update({
-            where: { id: projectApplicants.id },
+        yield prisma.jobApplicants.update({
+            where: { id: jobApplicants.id },
             data: { status: "ACCEPTED" },
         });
-        yield prisma.projectApplicants.deleteMany({
-            where: { clientProjectId: myProject.id, status: { not: "ACCEPTED" } },
+        yield prisma.jobApplicants.deleteMany({
+            where: { jobId: myJob.id, status: { not: "ACCEPTED" } },
         });
         return updateProject;
     }));
     return result;
 });
 const rejectApplicant = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield prisma_1.default.projectApplicants.update({
+    const result = yield prisma_1.default.jobApplicants.update({
         where: { id },
         data: { status: "REJECTED" },
     });
     return result;
 });
-exports.ClientProjectService = {
-    createClientProject,
-    getClientProjectsFromDb,
-    getSingleClientProject,
-    getMyProjects,
+exports.JobService = {
+    createJob,
+    getJobsFromDb,
+    getSingleJob,
+    getMyJobs,
     confirmApplicant,
     rejectApplicant,
 };
