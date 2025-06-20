@@ -9,6 +9,8 @@ import {
 } from "./clientProject.interface";
 import { clientProjectSearchAbleFields } from "./clientProject.costant";
 import httpStatus from "http-status";
+import { sendNotification } from "../SendNotification/sendNotification";
+import { Tnotification } from "../SendNotification/notificationInterface";
 
 const createClientProject = async (payload: TClientProject, userId: string) => {
   const result = await prisma.clientProject.create({
@@ -168,7 +170,7 @@ const confirmApplicant = async (
 ) => {
   const myProject = await prisma.clientProject.findFirst({
     where: { id: projectId, userId },
-    select: { id: true },
+    select: { id: true, title: true, description: true },
   });
 
   if (!myProject) {
@@ -180,12 +182,21 @@ const confirmApplicant = async (
       clientProjectId: myProject.id,
       serviceProviderId: payload.serviceProviderId,
     },
-    select: { id: true },
+    select: {
+      id: true,
+      ServiceProvider: { select: { user: { select: { id: true } } } },
+    },
   });
 
   if (!projectApplicants) {
     throw new ApiError(httpStatus.NOT_FOUND, "Applicant not found");
   }
+
+  const notificationData: Tnotification = {
+    userId: projectApplicants.ServiceProvider.user.id,
+    title: `Project application accepted for ${myProject.title}`,
+    body: myProject.description,
+  };
 
   const result = await prisma.$transaction(async (prisma) => {
     const updateProject = await prisma.clientProject.update({
@@ -202,6 +213,8 @@ const confirmApplicant = async (
       where: { clientProjectId: myProject.id, status: { not: "ACCEPTED" } },
     });
 
+    sendNotification(notificationData);
+
     return updateProject;
   });
 
@@ -212,7 +225,21 @@ const rejectApplicant = async (id: string) => {
   const result = await prisma.projectApplicants.update({
     where: { id },
     data: { status: "REJECTED" },
+    select: {
+      id: true,
+      status: true,
+      ServiceProvider: { select: { user: { select: { id: true } } } },
+      clientProject: { select: { title: true } },
+    },
   });
+
+  const notificationData: Tnotification = {
+    userId: result.ServiceProvider.user.id,
+    title: `Project application rejected for ${result.clientProject.title}`,
+    body: "",
+  };
+
+  sendNotification(notificationData);
 
   return result;
 };
@@ -220,6 +247,15 @@ const rejectApplicant = async (id: string) => {
 const cancelProject = async (id: string, userId: string) => {
   const clientProject = await prisma.clientProject.findFirst({
     where: { id, userId },
+    select: {
+      id: true,
+      title: true,
+      ProjectApplicants: {
+        select: {
+          ServiceProvider: { select: { user: { select: { id: true } } } },
+        },
+      },
+    },
   });
 
   if (!clientProject) {
@@ -230,6 +266,14 @@ const cancelProject = async (id: string, userId: string) => {
     where: { id, userId },
     data: { status: "CANCELLED" },
   });
+
+  const notificationData: Tnotification = {
+    userId: clientProject.ProjectApplicants[0].ServiceProvider.user.id,
+    title: `Project cancelled from ${clientProject.title}`,
+    body: "",
+  };
+
+  sendNotification(notificationData);
 
   return result;
 };

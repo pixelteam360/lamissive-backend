@@ -11,6 +11,13 @@ const router = express.Router();
 router.route("/").get(auth(), ServiceProviderController.getAllServiceProvider);
 
 router
+  .route("/my")
+  .get(
+    auth(UserRole.SERVICE_PROVIDER),
+    ServiceProviderController.myProjects
+  );
+
+router
   .route("/project-apply")
   .post(
     auth(UserRole.SERVICE_PROVIDER),
@@ -37,5 +44,9 @@ router
 router
   .route("/:id")
   .get(auth(), ServiceProviderController.getSingleServiceProvide);
+
+router
+  .route("/schedule/:id")
+  .get(auth(), ServiceProviderController.myWorkschedule);
 
 export const ServiceProviderRoutes = router;

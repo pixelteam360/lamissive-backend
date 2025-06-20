@@ -1,0 +1,25 @@
+import admin from "../../../shared/firebase";
+import prisma from "../../../shared/prisma";
+import { Tnotification } from "./notificationInterface";
+
+export const sendNotification = async (payload: Tnotification) => {
+  const user = await prisma.user.findFirst({
+    where: { id: payload.userId },
+    select: { fcmToken: true },
+  });
+
+  const message = {
+    notification: { title: payload.title, body: payload.body },
+    token: user?.fcmToken!,
+  };
+
+  await prisma.notification.create({
+    data: payload,
+  });
+
+  await admin.messaging().send(message);
+
+  return {
+    message: "Notification send successfully",
+  };
+};

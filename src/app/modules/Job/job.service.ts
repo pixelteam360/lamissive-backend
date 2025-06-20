@@ -6,6 +6,8 @@ import { Prisma } from "@prisma/client";
 import { IJobFilterRequest, TJob } from "./job.interface";
 import httpStatus from "http-status";
 import { jobSearchAbleFields } from "./job.costant";
+import { sendNotification } from "../SendNotification/sendNotification";
+import { Tnotification } from "../SendNotification/notificationInterface";
 
 const createJob = async (payload: TJob, userId: string) => {
   const result = await prisma.job.create({
@@ -114,7 +116,7 @@ const confirmApplicant = async (
 ) => {
   const myJob = await prisma.job.findFirst({
     where: { id: jobId, userId },
-    select: { id: true },
+    select: { id: true, title: true, description: true },
   });
 
   if (!myJob) {
@@ -126,12 +128,21 @@ const confirmApplicant = async (
       jobId: myJob.id,
       serviceProviderId: payload.serviceProviderId,
     },
-    select: { id: true },
+    select: {
+      id: true,
+      ServiceProvider: { select: { user: { select: { id: true } } } },
+    },
   });
 
   if (!jobApplicants) {
     throw new ApiError(httpStatus.NOT_FOUND, "Applicant not found");
   }
+
+  const notificationData: Tnotification = {
+    userId: jobApplicants.ServiceProvider.user.id,
+    title: `Job Application accepted for ${myJob.title}`,
+    body: myJob.description,
+  };
 
   const result = await prisma.$transaction(async (prisma) => {
     const updateProject = await prisma.job.update({
@@ -148,6 +159,8 @@ const confirmApplicant = async (
       where: { jobId: myJob.id, status: { not: "ACCEPTED" } },
     });
 
+    sendNotification(notificationData);
+
     return updateProject;
   });
 
@@ -158,7 +171,21 @@ const rejectApplicant = async (id: string) => {
   const result = await prisma.jobApplicants.update({
     where: { id },
     data: { status: "REJECTED" },
+    select: {
+      id: true,
+      status: true,
+      ServiceProvider: { select: { user: { select: { id: true } } } },
+      job: { select: { title: true } },
+    },
   });
+
+  const notificationData: Tnotification = {
+    userId: result.ServiceProvider.user.id,
+    title: `Job application rejected for ${result.job.title}`,
+    body: "",
+  };
+
+  sendNotification(notificationData);
 
   return result;
 };

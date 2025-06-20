@@ -64,10 +64,32 @@ const getSingleServiceProvide = catchAsync(async (req, res) => {
   });
 });
 
+const myWorkschedule = catchAsync(async (req, res) => {
+  const result = await ServiceProviderService.myWorkschedule(
+    req.params.id
+  );
+  sendResponse(res, {
+    message: "ServiceProvider schedule retrieved  successfully!",
+    data: result,
+  });
+});
+
+const myProjects = catchAsync(async (req, res) => {
+  const result = await ServiceProviderService.myProjects(
+    req.user.id
+  );
+  sendResponse(res, {
+    message: "ServiceProvider project retrieved  successfully!",
+    data: result,
+  });
+});
+
 export const ServiceProviderController = {
   applyToProject,
   applyToJob,
   getAllServiceProvider,
   getSingleServiceProvide,
   rateServiceProvider,
+  myWorkschedule,
+  myProjects
 };

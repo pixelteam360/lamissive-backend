@@ -1,6 +1,6 @@
 import prisma from "../../../shared/prisma";
 import ApiError from "../../../errors/ApiErrors";
-import { Prisma, ServiceProvider } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import httpStatus from "http-status";
 import { IPaginationOptions } from "../../../interfaces/paginations";
 import { paginationHelper } from "../../../helpars/paginationHelper";
@@ -8,6 +8,8 @@ import { IServiceProviderFilterRequest } from "./serviceProvider.interface";
 import { ServiceProviderSearchAbleFields } from "./serviceProvider.costant";
 import { fileUploader } from "../../../helpars/fileUploader";
 import calculateHaversineDistance from "./serviceProvider.utils";
+import { sendNotification } from "../SendNotification/sendNotification";
+import { Tnotification } from "../SendNotification/notificationInterface";
 
 const applyToProject = async (
   payload: { bidPrice: number; clientProjectId: string },
@@ -15,6 +17,7 @@ const applyToProject = async (
 ) => {
   const project = await prisma.clientProject.findFirst({
     where: { id: payload.clientProjectId },
+    select: { status: true, title: true, user: { select: { id: true } } },
   });
 
   if (!project) {
@@ -30,6 +33,7 @@ const applyToProject = async (
 
   const serviceProvider = await prisma.serviceProvider.findFirst({
     where: { userId },
+    select: { id: true, fullName: true },
   });
 
   if (!serviceProvider) {
@@ -44,6 +48,7 @@ const applyToProject = async (
       clientProjectId: payload.clientProjectId,
       serviceProviderId: serviceProvider.id,
     },
+    select: { id: true },
   });
 
   if (isApplyed) {
@@ -61,6 +66,14 @@ const applyToProject = async (
     },
   });
 
+  const notificationData: Tnotification = {
+    userId: project.user.id,
+    title: `Got application from ${serviceProvider.fullName}`,
+    body: `${serviceProvider.fullName} just apply for the job ${project.title}`,
+  };
+
+  sendNotification(notificationData);
+
   return result;
 };
 
@@ -77,23 +90,25 @@ const applyToJob = async (
     throw new ApiError(httpStatus.NOT_FOUND, "CV not found");
   }
 
-  const project = await prisma.job.findFirst({
+  const job = await prisma.job.findFirst({
     where: { id: payload.jobId },
+    select: { status: true, title: true, user: { select: { id: true } } },
   });
 
-  if (!project) {
+  if (!job) {
     throw new ApiError(httpStatus.NOT_FOUND, "Job not found");
   }
 
-  if (project.status !== "PENDING") {
+  if (job.status !== "PENDING") {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
-      `This project already ${project.status}`
+      `This job already ${job.status}`
     );
   }
 
   const serviceProvider = await prisma.serviceProvider.findFirst({
     where: { userId },
+    select: { id: true, fullName: true },
   });
 
   if (!serviceProvider) {
@@ -126,6 +141,14 @@ const applyToJob = async (
       serviceProviderId: serviceProvider.id,
     },
   });
+
+  const notificationData: Tnotification = {
+    userId: job.user.id,
+    title: `Got application from ${serviceProvider.fullName}`,
+    body: `${serviceProvider.fullName} just apply for the job ${job.title}`,
+  };
+
+  sendNotification(notificationData);
 
   return result;
 };
@@ -249,6 +272,18 @@ const getAllServiceProvider = async (
         : {
             rating: "asc",
           },
+
+    select: {
+      id: true,
+      image: true,
+      fullName: true,
+      location: true,
+      expertise: true,
+      rating: true,
+      hourlyRate: true,
+      let: true,
+      lan: true,
+    },
   });
 
   const total = await prisma.serviceProvider.count({
@@ -308,10 +343,47 @@ const getSingleServiceProvide = async (ServiceProviderId: string) => {
   return result;
 };
 
+const myWorkschedule = async (userId: string) => {
+  const result = await prisma.projectApplicants.findMany({
+    where: { serviceProviderId: userId, status: "ACCEPTED" },
+    select: { clientProject: { select: { date: true, time: true } } },
+    orderBy: { clientProject: { date: "desc" } },
+  });
+
+  return result;
+};
+
+const myProjects = async (userId: string) => {
+  const user = await prisma.serviceProvider.findFirst({
+    where: { userId },
+  });
+
+  const result = await prisma.projectApplicants.findMany({
+    where: { serviceProviderId: user?.id, status: "ACCEPTED" },
+    select: {
+      clientProject: {
+        select: {
+          id: true,
+          title: true,
+          date: true,
+          category: true,
+          status: true,
+          description: true,
+        },
+      },
+    },
+    orderBy: { clientProject: { date: "asc" } },
+  });
+
+  return result;
+};
+
 export const ServiceProviderService = {
   applyToProject,
   applyToJob,
   getAllServiceProvider,
   getSingleServiceProvide,
   rateServiceProvider,
+  myWorkschedule,
+  myProjects,
 };

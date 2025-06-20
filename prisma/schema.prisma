@@ -25,6 +25,7 @@ model User {
   ServiceRating    ServiceRating[]
   ClientProject    ClientProject[]
   Job              Job[]
+  Notification     Notification[]
 
   @@map("Users")
 }
@@ -64,27 +65,29 @@ model Employ {
 }
 
 model ServiceProvider {
-  id                String              @id @default(auto()) @map("_id") @db.ObjectId
-  fullName          String
-  location          String
-  gender            Gender
-  age               Int
-  exprience         Int
-  expertise         Category[]
-  mobile            String
-  image             String?             @default("")
-  about             String?             @default("")
-  hourlyRate        Float
-  rating            Float?              @default(0)
-  let               Float
-  lan               Float
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  userId            String              @unique @db.ObjectId
-  user              User                @relation(fields: [userId], references: [id])
-  ServiceRating     ServiceRating[]
-  ProjectApplicants ProjectApplicants[]
-  JobApplicants     JobApplicants[]
+  id                    String                  @id @default(auto()) @map("_id") @db.ObjectId
+  fullName              String
+  location              String
+  gender                Gender
+  age                   Int
+  exprience             Int
+  expertise             Category[]
+  mobile                String
+  image                 String?                 @default("")
+  about                 String?                 @default("")
+  hourlyRate            Float
+  rating                Float?                  @default(0)
+  let                   Float
+  lan                   Float
+  activeSubscription    Boolean                 @default(false)
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  userId                String                  @unique @db.ObjectId
+  user                  User                    @relation(fields: [userId], references: [id])
+  ServiceRating         ServiceRating[]
+  ProjectApplicants     ProjectApplicants[]
+  JobApplicants         JobApplicants[]
+  PurchasedSubscription PurchasedSubscription[]
 
   @@map("Service-Provider")
 }
@@ -161,6 +164,48 @@ model ServiceRating {
   user              User            @relation(fields: [userId], references: [id])
 
   @@map("Service-Rating")
+}
+
+model Notification {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  body      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("Notification")
+}
+
+model Subscription {
+  id                     String                  @id @default(auto()) @map("_id") @db.ObjectId
+  title                  String
+  duration               Int
+  price                  Float
+  isDeleted              Boolean                 @default(false)
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  purchasedSubscriptions PurchasedSubscription[]
+
+  @@map("Subscriptions")
+}
+
+model PurchasedSubscription {
+  id                 String          @id @default(auto()) @map("_id") @db.ObjectId
+  paymentId          String
+  amount             Float
+  activeSubscription Boolean         @default(true)
+  stratDate          DateTime        @default(now())
+  endDate            DateTime
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  serviceProviderId  String          @db.ObjectId
+  subscriptionId     String          @db.ObjectId
+  serviceProvider    ServiceProvider @relation(fields: [serviceProviderId], references: [id])
+  subscription       Subscription    @relation(fields: [subscriptionId], references: [id])
+
+  @@map("Purchased-Subscription")
 }
 
 enum UserRole {
