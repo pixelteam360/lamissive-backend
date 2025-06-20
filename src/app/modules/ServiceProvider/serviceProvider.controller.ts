@@ -10,7 +10,7 @@ const applyToProject = catchAsync(async (req, res) => {
     req.user.id
   );
   sendResponse(res, {
-    message: "Profile updated successfully!",
+    message: "Project applyed successfully!",
     data: result,
   });
 });
@@ -23,7 +23,7 @@ const applyToJob = catchAsync(async (req, res) => {
     req.user.id
   );
   sendResponse(res, {
-    message: "Profile updated successfully!",
+    message: "Job applyed successfully!",
     data: result,
   });
 });
@@ -34,7 +34,7 @@ const rateServiceProvider = catchAsync(async (req, res) => {
     req.user.id
   );
   sendResponse(res, {
-    message: "Rate Service provider successfully!",
+    message: "Rated Service provider successfully!",
     data: result,
   });
 });
@@ -46,23 +46,20 @@ const getAllServiceProvider = catchAsync(async (req, res) => {
     filters,
     options,
     req.user.id,
-    req.user.role,
+    req.user.role
   );
   sendResponse(res, {
-    message: "ServiceProvider profile retrieved successfully",
+    message: "ServiceProviders retrieved successfully",
     data: result,
   });
 });
 
-const updateProfile = catchAsync(async (req, res) => {
-  const { id } = req?.user;
-  const result = await ServiceProviderService.updateProfile(
-    req.body,
-    req.file,
-    id
+const getSingleServiceProvide = catchAsync(async (req, res) => {
+  const result = await ServiceProviderService.getSingleServiceProvide(
+    req.params.id
   );
   sendResponse(res, {
-    message: "Profile updated successfully!",
+    message: "ServiceProvider retrieved  successfully!",
     data: result,
   });
 });
@@ -71,6 +68,6 @@ export const ServiceProviderController = {
   applyToProject,
   applyToJob,
   getAllServiceProvider,
-  updateProfile,
+  getSingleServiceProvide,
   rateServiceProvider,
 };

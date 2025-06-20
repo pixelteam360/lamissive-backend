@@ -217,6 +217,23 @@ const rejectApplicant = async (id: string) => {
   return result;
 };
 
+const cancelProject = async (id: string, userId: string) => {
+  const clientProject = await prisma.clientProject.findFirst({
+    where: { id, userId },
+  });
+
+  if (!clientProject) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Unauthorize access");
+  }
+
+  const result = await prisma.clientProject.update({
+    where: { id, userId },
+    data: { status: "CANCELLED" },
+  });
+
+  return result;
+};
+
 export const ClientProjectService = {
   createClientProject,
   getClientProjectsFromDb,
@@ -224,4 +241,5 @@ export const ClientProjectService = {
   getMyProjects,
   confirmApplicant,
   rejectApplicant,
+  cancelProject,
 };

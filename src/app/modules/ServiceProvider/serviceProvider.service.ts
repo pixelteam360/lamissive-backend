@@ -134,6 +134,10 @@ const rateServiceProvider = async (
   payload: { rating: number; serviceProviderId: string },
   userId: string
 ) => {
+  if (payload.rating > 5) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Rating must be under 5");
+  }
+
   const serviceProvider = await prisma.serviceProvider.findFirst({
     where: { id: payload.serviceProviderId },
   });
@@ -152,6 +156,7 @@ const rateServiceProvider = async (
     });
 
     const sumOfRating = await prisma.serviceRating.aggregate({
+      where: { serviceProviderId: serviceProvider.id },
       _sum: { rating: true },
     });
 
@@ -191,11 +196,21 @@ const getAllServiceProvider = async (
 
   if (Object.keys(filterData).length > 0) {
     andCondions.push({
-      AND: Object.keys(filterData).map((key) => ({
-        [key]: {
-          equals: (filterData as any)[key],
-        },
-      })),
+      AND: Object.keys(filterData).map((key) => {
+        if (key === "expertise") {
+          return {
+            [key]: {
+              has: (filterData as any)[key],
+            },
+          };
+        }
+
+        return {
+          [key]: {
+            equals: (filterData as any)[key],
+          },
+        };
+      }),
     });
   }
 
@@ -232,7 +247,7 @@ const getAllServiceProvider = async (
             [options.sortBy]: options.sortOrder,
           }
         : {
-            rating: "desc",
+            rating: "asc",
           },
   });
 
@@ -243,15 +258,20 @@ const getAllServiceProvider = async (
   if (
     userRole === "ADMIN" ||
     userRole === "CONCIERGE" ||
-    userRole === "SERVICE_PROVIDER"
+    userRole === "SERVICE_PROVIDER" ||
+    (options && Object.keys(options).length > 0)
   ) {
+    const data = allServiceProvider.map((item) => {
+      return { ...item, distance: 0 };
+    });
+
     return {
       meta: {
         page,
         limit,
         total,
       },
-      data: allServiceProvider,
+      data,
     };
   }
 
@@ -277,29 +297,21 @@ const getAllServiceProvider = async (
   };
 };
 
-const updateProfile = async (
-  payload: ServiceProvider,
-  imageFile: any,
-  ServiceProviderId: string
-) => {
-  //   const result = await prisma.$transaction(async (prisma) => {
-  //     let image = "";
-  //     if (imageFile) {
-  //       image = (await fileUploader.uploadToCloudinary(imageFile)).Location;
-  //     }
-  //     const createServiceProviderProfile = await prisma.ServiceProvider.update({
-  //       where: { id: ServiceProviderId },
-  //       data: { ...payload, image },
-  //     });
-  //     return createServiceProviderProfile;
-  //   });
-  //   return result;
+const getSingleServiceProvide = async (ServiceProviderId: string) => {
+  const result = await prisma.serviceProvider.findFirst({
+    where: { id: ServiceProviderId },
+  });
+
+  if (!result) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Service provider not found");
+  }
+  return result;
 };
 
 export const ServiceProviderService = {
   applyToProject,
   applyToJob,
   getAllServiceProvider,
-  updateProfile,
+  getSingleServiceProvide,
   rateServiceProvider,
 };

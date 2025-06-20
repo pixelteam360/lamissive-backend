@@ -74,7 +74,7 @@ model ServiceProvider {
   mobile            String
   image             String?             @default("")
   about             String?             @default("")
-  hourlyRate        Int
+  hourlyRate        Float
   rating            Float?              @default(0)
   let               Float
   lan               Float

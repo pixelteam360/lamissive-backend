@@ -21,6 +21,7 @@ router
 router
     .route("/:id")
     .get((0, auth_1.default)(), clientProject_controller_1.ClientProjectController.getSingleClientProject)
-    .patch((0, auth_1.default)(client_1.UserRole.CLIENT), (0, validateRequest_1.default)(clientProject_validation_1.ClientProjectValidation.confirmApplicantSchema), clientProject_controller_1.ClientProjectController.confirmApplicant)
-    .delete((0, auth_1.default)(client_1.UserRole.EMPLOYER), clientProject_controller_1.ClientProjectController.rejectApplicant);
+    .put((0, auth_1.default)(client_1.UserRole.CLIENT), (0, validateRequest_1.default)(clientProject_validation_1.ClientProjectValidation.confirmApplicantSchema), clientProject_controller_1.ClientProjectController.confirmApplicant)
+    .patch((0, auth_1.default)(client_1.UserRole.CLIENT), clientProject_controller_1.ClientProjectController.rejectApplicant)
+    .delete((0, auth_1.default)(client_1.UserRole.CLIENT), clientProject_controller_1.ClientProjectController.cancelProject);
 exports.ClientProjectRoutes = router;

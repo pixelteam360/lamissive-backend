@@ -64,6 +64,13 @@ const rejectApplicant = (0, catchAsync_1.default)((req, res) => __awaiter(void 0
         data: result,
     });
 }));
+const cancelProject = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield clientProject_service_1.ClientProjectService.cancelProject(req.params.id, req.user.id);
+    (0, sendResponse_1.default)(res, {
+        message: "Applicant rejected successfully!",
+        data: result,
+    });
+}));
 exports.ClientProjectController = {
     createClientProject,
     getClientProjects,
@@ -71,4 +78,5 @@ exports.ClientProjectController = {
     getMyProjects,
     confirmApplicant,
     rejectApplicant,
+    cancelProject,
 };

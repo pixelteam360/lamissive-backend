@@ -2,9 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ServiceProviderSearchAbleFields = exports.ServiceProviderFilterableFields = void 0;
 exports.ServiceProviderFilterableFields = [
-    "email",
-    "searchTerm",
-    "role",
     "fullName",
+    "searchTerm",
+    "expertise",
+    "hourlyRate",
+    "location",
 ];
-exports.ServiceProviderSearchAbleFields = ["email", "fullName"];
+exports.ServiceProviderSearchAbleFields = ["fullName"];

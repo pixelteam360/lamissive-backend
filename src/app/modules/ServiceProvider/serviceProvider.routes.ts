@@ -34,4 +34,8 @@ router
     ServiceProviderController.rateServiceProvider
   );
 
+router
+  .route("/:id")
+  .get(auth(), ServiceProviderController.getSingleServiceProvide);
+
 export const ServiceProviderRoutes = router;

@@ -22,4 +22,7 @@ router
 router
     .route("/rate-service")
     .post((0, auth_1.default)(client_1.UserRole.CLIENT), (0, validateRequest_1.default)(serviceProvider_validation_1.ServiceProviderValidation.rateServiceSchema), serviceProvider_controller_1.ServiceProviderController.rateServiceProvider);
+router
+    .route("/:id")
+    .get((0, auth_1.default)(), serviceProvider_controller_1.ServiceProviderController.getSingleServiceProvide);
 exports.ServiceProviderRoutes = router;

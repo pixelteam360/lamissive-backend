@@ -1,7 +1,6 @@
 import express, { NextFunction, Request, Response } from "express";
 import validateRequest from "../../middlewares/validateRequest";
 import auth from "../../middlewares/auth";
-import { fileUploader } from "../../../helpars/fileUploader";
 import { ClientProjectController } from "./clientProject.controller";
 import { ClientProjectValidation } from "./clientProject.validation";
 import { UserRole } from "@prisma/client";
@@ -25,11 +24,12 @@ router
 router
   .route("/:id")
   .get(auth(), ClientProjectController.getSingleClientProject)
-  .patch(
+  .put(
     auth(UserRole.CLIENT),
     validateRequest(ClientProjectValidation.confirmApplicantSchema),
     ClientProjectController.confirmApplicant
   )
-  .delete(auth(UserRole.EMPLOYER), ClientProjectController.rejectApplicant);
+  .patch(auth(UserRole.CLIENT), ClientProjectController.rejectApplicant)
+  .delete(auth(UserRole.CLIENT), ClientProjectController.cancelProject);
 
 export const ClientProjectRoutes = router;

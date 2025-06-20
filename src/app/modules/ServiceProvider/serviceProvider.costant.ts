@@ -6,6 +6,4 @@ export const ServiceProviderFilterableFields = [
   "location",
 ];
 
-export const ServiceProviderSearchAbleFields = [
-  "fullName",
-];
+export const ServiceProviderSearchAbleFields = ["fullName"];

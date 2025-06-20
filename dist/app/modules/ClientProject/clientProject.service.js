@@ -196,6 +196,19 @@ const rejectApplicant = (id) => __awaiter(void 0, void 0, void 0, function* () {
     });
     return result;
 });
+const cancelProject = (id, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const clientProject = yield prisma_1.default.clientProject.findFirst({
+        where: { id, userId },
+    });
+    if (!clientProject) {
+        throw new ApiErrors_1.default(http_status_1.default.BAD_REQUEST, "Unauthorize access");
+    }
+    const result = yield prisma_1.default.clientProject.update({
+        where: { id, userId },
+        data: { status: "CANCELLED" },
+    });
+    return result;
+});
 exports.ClientProjectService = {
     createClientProject,
     getClientProjectsFromDb,
@@ -203,4 +216,5 @@ exports.ClientProjectService = {
     getMyProjects,
     confirmApplicant,
     rejectApplicant,
+    cancelProject,
 };

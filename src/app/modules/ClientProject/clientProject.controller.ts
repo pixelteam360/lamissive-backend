@@ -72,6 +72,14 @@ const rejectApplicant = catchAsync(async (req, res) => {
   });
 });
 
+const cancelProject = catchAsync(async (req, res) => {
+  const result = await ClientProjectService.cancelProject(req.params.id, req.user.id);
+  sendResponse(res, {
+    message: "Applicant rejected successfully!",
+    data: result,
+  });
+});
+
 export const ClientProjectController = {
   createClientProject,
   getClientProjects,
@@ -79,4 +87,5 @@ export const ClientProjectController = {
   getMyProjects,
   confirmApplicant,
   rejectApplicant,
+  cancelProject,
 };
