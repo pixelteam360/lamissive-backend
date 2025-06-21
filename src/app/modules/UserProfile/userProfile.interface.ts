@@ -43,3 +43,19 @@ export type TServiceProviderProfile = {
   updatedAt: Date;
   userId: string;
 };
+
+export type TConcierge = {
+  id: string;
+  fullName: string;
+  location: string;
+  image?: string;
+  about?: string;
+  gender: Gender;
+  age: number;
+  exprience: number;
+  let: number;
+  lan: number;
+  createdAt: Date;
+  updatedAt: Date;
+  userId: string;
+};

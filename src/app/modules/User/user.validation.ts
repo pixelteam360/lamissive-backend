@@ -10,11 +10,13 @@ const CreateUserValidationSchema = z.object({
     "EMPLOYER",
     "CONCIERGE",
   ]),
+  fcmToken: z.string().optional(),
 });
 
 const UserLoginValidationSchema = z.object({
   email: z.string().email("Email is required"),
   password: z.string().min(8, "Password must be at least 8 characters long"),
+  fcmToken: z.string().optional(),
 });
 
 export const UserValidation = {

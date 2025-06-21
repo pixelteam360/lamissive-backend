@@ -29,6 +29,7 @@ const ApiErrors_1 = __importDefault(require("../../../errors/ApiErrors"));
 const paginationHelper_1 = require("../../../helpars/paginationHelper");
 const http_status_1 = __importDefault(require("http-status"));
 const job_costant_1 = require("./job.costant");
+const sendNotification_1 = require("../SendNotification/sendNotification");
 const createJob = (payload, userId) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prisma_1.default.job.create({
         data: Object.assign(Object.assign({}, payload), { userId }),
@@ -70,6 +71,14 @@ const getJobsFromDb = (params, options) => __awaiter(void 0, void 0, void 0, fun
             : {
                 createdAt: "desc",
             },
+        include: {
+            user: {
+                select: { Employ: { select: { fullName: true, location: true } } },
+            },
+            _count: {
+                select: { JobApplicants: { where: { status: { equals: "PENDING" } } } },
+            },
+        },
     });
     const total = yield prisma_1.default.job.count({
         where: Object.assign(Object.assign({}, whereConditons), { status: "PENDING" }),
@@ -91,6 +100,9 @@ const getSingleJob = (id) => __awaiter(void 0, void 0, void 0, function* () {
                 select: {
                     Employ: { select: { fullName: true, location: true, image: true } },
                 },
+            },
+            _count: {
+                select: { JobApplicants: { where: { status: { equals: "PENDING" } } } },
             },
             JobApplicants: {
                 where: { status: { not: "REJECTED" } },
@@ -116,7 +128,7 @@ const getMyJobs = (userId) => __awaiter(void 0, void 0, void 0, function* () {
 const confirmApplicant = (payload, jobId, userId) => __awaiter(void 0, void 0, void 0, function* () {
     const myJob = yield prisma_1.default.job.findFirst({
         where: { id: jobId, userId },
-        select: { id: true },
+        select: { id: true, title: true, description: true },
     });
     if (!myJob) {
         throw new ApiErrors_1.default(http_status_1.default.UNAUTHORIZED, "This is not your Job");
@@ -126,11 +138,19 @@ const confirmApplicant = (payload, jobId, userId) => __awaiter(void 0, void 0, v
             jobId: myJob.id,
             serviceProviderId: payload.serviceProviderId,
         },
-        select: { id: true },
+        select: {
+            id: true,
+            ServiceProvider: { select: { user: { select: { id: true } } } },
+        },
     });
     if (!jobApplicants) {
         throw new ApiErrors_1.default(http_status_1.default.NOT_FOUND, "Applicant not found");
     }
+    const notificationData = {
+        userId: jobApplicants.ServiceProvider.user.id,
+        title: `Job Application accepted for ${myJob.title}`,
+        body: myJob.description,
+    };
     const result = yield prisma_1.default.$transaction((prisma) => __awaiter(void 0, void 0, void 0, function* () {
         const updateProject = yield prisma.job.update({
             where: { id: myJob.id },
@@ -143,6 +163,7 @@ const confirmApplicant = (payload, jobId, userId) => __awaiter(void 0, void 0, v
         yield prisma.jobApplicants.deleteMany({
             where: { jobId: myJob.id, status: { not: "ACCEPTED" } },
         });
+        (0, sendNotification_1.sendNotification)(notificationData);
         return updateProject;
     }));
     return result;
@@ -151,7 +172,19 @@ const rejectApplicant = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prisma_1.default.jobApplicants.update({
         where: { id },
         data: { status: "REJECTED" },
+        select: {
+            id: true,
+            status: true,
+            ServiceProvider: { select: { user: { select: { id: true } } } },
+            job: { select: { title: true } },
+        },
     });
+    const notificationData = {
+        userId: result.ServiceProvider.user.id,
+        title: `Job application rejected for ${result.job.title}`,
+        body: "",
+    };
+    (0, sendNotification_1.sendNotification)(notificationData);
     return result;
 });
 exports.JobService = {

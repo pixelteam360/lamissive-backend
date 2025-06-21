@@ -62,4 +62,22 @@ router
     UserProfileController.updateServiceProviderProfile
   );
 
+router
+  .route("/concierge")
+  .post(
+    auth(UserRole.CONCIERGE),
+    validateRequest(UserProfileValidation.ConciergeProfileSchema),
+    UserProfileController.createConciergeProfile
+  )
+  .put(
+    auth(UserRole.CONCIERGE),
+    fileUploader.uploadSingle,
+    (req: Request, res: Response, next: NextFunction) => {
+      req.body = JSON.parse(req.body.data);
+      next();
+    },
+    validateRequest(UserProfileValidation.UpdateConciergeProfileSchema),
+    UserProfileController.updateConciergeProfile
+  );
+
 export const UserProfileRoutes = router;

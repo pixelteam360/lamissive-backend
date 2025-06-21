@@ -33,4 +33,11 @@ router
     req.body = JSON.parse(req.body.data);
     next();
 }, (0, validateRequest_1.default)(userProfile_validation_1.UserProfileValidation.UpdateEmployerProfileSchema), userProfile_controller_1.UserProfileController.updateServiceProviderProfile);
+router
+    .route("/concierge")
+    .post((0, auth_1.default)(client_1.UserRole.CONCIERGE), (0, validateRequest_1.default)(userProfile_validation_1.UserProfileValidation.ConciergeProfileSchema), userProfile_controller_1.UserProfileController.createConciergeProfile)
+    .put((0, auth_1.default)(client_1.UserRole.CONCIERGE), fileUploader_1.fileUploader.uploadSingle, (req, res, next) => {
+    req.body = JSON.parse(req.body.data);
+    next();
+}, (0, validateRequest_1.default)(userProfile_validation_1.UserProfileValidation.UpdateConciergeProfileSchema), userProfile_controller_1.UserProfileController.updateConciergeProfile);
 exports.UserProfileRoutes = router;

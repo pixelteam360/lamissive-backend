@@ -8,7 +8,11 @@ import httpStatus from "http-status";
 import crypto from "crypto";
 import { emailSender } from "../../../shared/emailSender";
 
-const loginUser = async (payload: { email: string; password: string }) => {
+const loginUser = async (payload: {
+  email: string;
+  password: string;
+  fcmToken: string;
+}) => {
   const userData = await prisma.user.findUnique({
     where: {
       email: payload.email,
@@ -38,6 +42,13 @@ const loginUser = async (payload: { email: string; password: string }) => {
     config.jwt.jwt_secret as Secret,
     config.jwt.expires_in as string
   );
+
+  if (payload.fcmToken) {
+    await prisma.user.update({
+      where: { id: userData.id },
+      data: { fcmToken: payload.fcmToken },
+    });
+  }
 
   return {
     role: userData.role,

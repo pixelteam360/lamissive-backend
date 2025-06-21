@@ -2,6 +2,7 @@ import prisma from "../../../shared/prisma";
 import ApiError from "../../../errors/ApiErrors";
 import {
   TClientProfile,
+  TConcierge,
   TEmployProfile,
   TServiceProviderProfile,
 } from "./userProfile.interface";
@@ -176,6 +177,60 @@ const updateServiceProviderProfile = async (
   return result;
 };
 
+const createConciergeProfile = async (payload: TConcierge, userId: string) => {
+  const concierge = await prisma.concierge.findFirst({
+    where: { userId },
+  });
+
+  if (concierge) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "You have already created your profile"
+    );
+  }
+
+  const result = await prisma.$transaction(async (prisma) => {
+    const concierge = await prisma.concierge.create({
+      data: { ...payload, userId },
+    });
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { completedProfile: true },
+    });
+
+    return concierge;
+  });
+
+  return result;
+};
+
+const updateConciergeProfile = async (
+  payload: Partial<TConcierge>,
+  imageFile: any,
+  userId: string
+) => {
+  const concierge = await prisma.concierge.findFirst({
+    where: { userId },
+  });
+
+  if (!concierge) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User profile not found");
+  }
+
+  let image = concierge.image;
+  if (imageFile) {
+    image = (await fileUploader.uploadToDigitalOcean(imageFile)).Location;
+  }
+
+  const result = await prisma.concierge.update({
+    where: { id: concierge.id },
+    data: { ...payload, image, userId },
+  });
+
+  return result;
+};
+
 export const UserProfileService = {
   createClietnProfile,
   updateClietnProfile,
@@ -183,4 +238,6 @@ export const UserProfileService = {
   updateEmployerProfile,
   createServiceProviderProfile,
   updateServiceProviderProfile,
+  createConciergeProfile,
+  updateConciergeProfile,
 };

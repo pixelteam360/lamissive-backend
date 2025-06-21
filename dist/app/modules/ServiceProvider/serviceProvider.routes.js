@@ -13,11 +13,14 @@ const serviceProvider_validation_1 = require("./serviceProvider.validation");
 const fileUploader_1 = require("../../../helpars/fileUploader");
 const router = express_1.default.Router();
 router.route("/").get((0, auth_1.default)(), serviceProvider_controller_1.ServiceProviderController.getAllServiceProvider);
+router.route("/concierges").get((0, auth_1.default)(), serviceProvider_controller_1.ServiceProviderController.getAllConcierge);
 router
     .route("/project-apply")
+    .get((0, auth_1.default)(client_1.UserRole.SERVICE_PROVIDER), serviceProvider_controller_1.ServiceProviderController.myProjects)
     .post((0, auth_1.default)(client_1.UserRole.SERVICE_PROVIDER), (0, validateRequest_1.default)(serviceProvider_validation_1.ServiceProviderValidation.ApplyToProjectValidation), serviceProvider_controller_1.ServiceProviderController.applyToProject);
 router
     .route("/job-apply")
+    .get((0, auth_1.default)(client_1.UserRole.SERVICE_PROVIDER), serviceProvider_controller_1.ServiceProviderController.myJobs)
     .post((0, auth_1.default)(client_1.UserRole.SERVICE_PROVIDER), fileUploader_1.fileUploader.uploadFile, serviceProvider_controller_1.ServiceProviderController.applyToJob);
 router
     .route("/rate-service")
@@ -25,4 +28,8 @@ router
 router
     .route("/:id")
     .get((0, auth_1.default)(), serviceProvider_controller_1.ServiceProviderController.getSingleServiceProvide);
+router
+    .route("/schedule/:id")
+    .get((0, auth_1.default)(), serviceProvider_controller_1.ServiceProviderController.myWorkschedule);
+router.route("/concierges/:id").get((0, auth_1.default)(), serviceProvider_controller_1.ServiceProviderController.getSingleConcierge);
 exports.ServiceProviderRoutes = router;

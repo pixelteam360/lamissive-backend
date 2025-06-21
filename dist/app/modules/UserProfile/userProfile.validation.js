@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserProfileValidation = exports.UpdateServiceProviderProfileSchema = exports.ServiceProviderProfileSchema = exports.UpdateEmployerProfileSchema = exports.EmployerProfileSchema = exports.UpdateClientProfileSchema = exports.ClientProfileSchema = exports.ExpertiseEnum = exports.GenderEnum = void 0;
+exports.UserProfileValidation = exports.UpdateConciergeProfileSchema = exports.ConciergeProfileSchema = exports.UpdateServiceProviderProfileSchema = exports.ServiceProviderProfileSchema = exports.UpdateEmployerProfileSchema = exports.EmployerProfileSchema = exports.UpdateClientProfileSchema = exports.ClientProfileSchema = exports.ExpertiseEnum = exports.GenderEnum = void 0;
 const zod_1 = require("zod");
 exports.GenderEnum = zod_1.z.enum(["MALE", "FEMALE", "OTHER"]);
 exports.ExpertiseEnum = zod_1.z.enum([
@@ -66,6 +66,24 @@ exports.UpdateServiceProviderProfileSchema = zod_1.z.object({
     let: zod_1.z.number().optional(),
     lan: zod_1.z.number().optional(),
 });
+exports.ConciergeProfileSchema = zod_1.z.object({
+    fullName: zod_1.z.string(),
+    location: zod_1.z.string(),
+    gender: exports.GenderEnum,
+    age: zod_1.z.number().int(),
+    exprience: zod_1.z.number().int(),
+    let: zod_1.z.number(),
+    lan: zod_1.z.number(),
+});
+exports.UpdateConciergeProfileSchema = zod_1.z.object({
+    fullName: zod_1.z.string().optional(),
+    location: zod_1.z.string().optional(),
+    gender: exports.GenderEnum.optional(),
+    age: zod_1.z.number().int().optional(),
+    exprience: zod_1.z.number().int().optional(),
+    let: zod_1.z.number().optional(),
+    lan: zod_1.z.number().optional(),
+});
 exports.UserProfileValidation = {
     ClientProfileSchema: exports.ClientProfileSchema,
     UpdateClientProfileSchema: exports.UpdateClientProfileSchema,
@@ -73,4 +91,6 @@ exports.UserProfileValidation = {
     UpdateEmployerProfileSchema: exports.UpdateEmployerProfileSchema,
     ServiceProviderProfileSchema: exports.ServiceProviderProfileSchema,
     UpdateServiceProviderProfileSchema: exports.UpdateServiceProviderProfileSchema,
+    ConciergeProfileSchema: exports.ConciergeProfileSchema,
+    UpdateConciergeProfileSchema: exports.UpdateConciergeProfileSchema
 };

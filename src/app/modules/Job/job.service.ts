@@ -60,7 +60,16 @@ const getJobsFromDb = async (
         : {
             createdAt: "desc",
           },
+    include: {
+      user: {
+        select: { Employ: { select: { fullName: true, location: true } } },
+      },
+      _count: {
+        select: { JobApplicants: { where: { status: { equals: "PENDING" } } } },
+      },
+    },
   });
+
   const total = await prisma.job.count({
     where: { ...whereConditons, status: "PENDING" },
   });
@@ -83,6 +92,9 @@ const getSingleJob = async (id: string) => {
         select: {
           Employ: { select: { fullName: true, location: true, image: true } },
         },
+      },
+      _count: {
+        select: { JobApplicants: { where: { status: { equals: "PENDING" } } } },
       },
       JobApplicants: {
         where: { status: { not: "REJECTED" } },

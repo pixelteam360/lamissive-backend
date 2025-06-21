@@ -10,6 +10,8 @@ const userProfile_routes_1 = require("../modules/UserProfile/userProfile.routes"
 const clientProject_routes_1 = require("../modules/ClientProject/clientProject.routes");
 const serviceProvider_routes_1 = require("../modules/ServiceProvider/serviceProvider.routes");
 const job_routes_1 = require("../modules/Job/job.routes");
+const subscription_routes_1 = require("../modules/Subscription/subscription.routes");
+const purchasedSubscription_routes_1 = require("../modules/PurchasedSubscription/purchasedSubscription.routes");
 const router = express_1.default.Router();
 const moduleRoutes = [
     {
@@ -35,6 +37,14 @@ const moduleRoutes = [
     {
         path: "/service-provider",
         route: serviceProvider_routes_1.ServiceProviderRoutes,
+    },
+    {
+        path: "/subscription",
+        route: subscription_routes_1.SubscriptionRoutes,
+    },
+    {
+        path: "/purchased-subscription",
+        route: purchasedSubscription_routes_1.PurchasedSubscriptionRoutes,
     },
 ];
 moduleRoutes.forEach((route) => router.use(route.path, route.route));

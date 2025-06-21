@@ -51,7 +51,7 @@ export const ServiceProviderProfileSchema = z.object({
   gender: GenderEnum,
   age: z.number().int(),
   exprience: z.number().int(),
-  expertise: z.array(ExpertiseEnum), 
+  expertise: z.array(ExpertiseEnum),
   mobile: z.string(),
   hourlyRate: z.number(),
   int: z.number(),
@@ -71,6 +71,26 @@ export const UpdateServiceProviderProfileSchema = z.object({
   lan: z.number().optional(),
 });
 
+export const ConciergeProfileSchema = z.object({
+  fullName: z.string(),
+  location: z.string(),
+  gender: GenderEnum,
+  age: z.number().int(),
+  exprience: z.number().int(),
+  let: z.number(),
+  lan: z.number(),
+});
+
+export const UpdateConciergeProfileSchema = z.object({
+  fullName: z.string().optional(),
+  location: z.string().optional(),
+  gender: GenderEnum.optional(),
+  age: z.number().int().optional(),
+  exprience: z.number().int().optional(),
+  let: z.number().optional(),
+  lan: z.number().optional(),
+});
+
 export const UserProfileValidation = {
   ClientProfileSchema,
   UpdateClientProfileSchema,
@@ -78,4 +98,6 @@ export const UserProfileValidation = {
   UpdateEmployerProfileSchema,
   ServiceProviderProfileSchema,
   UpdateServiceProviderProfileSchema,
+  ConciergeProfileSchema,
+  UpdateConciergeProfileSchema
 };

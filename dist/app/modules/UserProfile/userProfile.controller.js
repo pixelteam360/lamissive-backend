@@ -58,6 +58,20 @@ const updateServiceProviderProfile = (0, catchAsync_1.default)((req, res) => __a
         data: result,
     });
 }));
+const createConciergeProfile = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield userProfile_service_1.UserProfileService.createConciergeProfile(req.body, req.user.id);
+    (0, sendResponse_1.default)(res, {
+        message: "Concierge profile created successfully!",
+        data: result,
+    });
+}));
+const updateConciergeProfile = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield userProfile_service_1.UserProfileService.updateConciergeProfile(req.body, req.file, req.user.id);
+    (0, sendResponse_1.default)(res, {
+        message: "Concierge updated successfully!",
+        data: result,
+    });
+}));
 exports.UserProfileController = {
     createUserProfile,
     updateClietnProfile,
@@ -65,4 +79,6 @@ exports.UserProfileController = {
     updateEmployerProfile,
     createServiceProviderProfile,
     updateServiceProviderProfile,
+    createConciergeProfile,
+    updateConciergeProfile,
 };

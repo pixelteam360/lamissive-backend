@@ -62,6 +62,12 @@ const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
         email: userData.email,
         role: userData.role,
     }, config_1.default.jwt.jwt_secret, config_1.default.jwt.expires_in);
+    if (payload.fcmToken) {
+        yield prisma_1.default.user.update({
+            where: { id: userData.id },
+            data: { fcmToken: payload.fcmToken },
+        });
+    }
     return {
         role: userData.role,
         completedProfile: userData.completedProfile,

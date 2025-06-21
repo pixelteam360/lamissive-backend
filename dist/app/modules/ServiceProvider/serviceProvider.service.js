@@ -31,9 +31,11 @@ const paginationHelper_1 = require("../../../helpars/paginationHelper");
 const serviceProvider_costant_1 = require("./serviceProvider.costant");
 const fileUploader_1 = require("../../../helpars/fileUploader");
 const serviceProvider_utils_1 = __importDefault(require("./serviceProvider.utils"));
+const sendNotification_1 = require("../SendNotification/sendNotification");
 const applyToProject = (payload, userId) => __awaiter(void 0, void 0, void 0, function* () {
     const project = yield prisma_1.default.clientProject.findFirst({
         where: { id: payload.clientProjectId },
+        select: { status: true, title: true, user: { select: { id: true } } },
     });
     if (!project) {
         throw new ApiErrors_1.default(http_status_1.default.NOT_FOUND, "Project not found");
@@ -43,6 +45,7 @@ const applyToProject = (payload, userId) => __awaiter(void 0, void 0, void 0, fu
     }
     const serviceProvider = yield prisma_1.default.serviceProvider.findFirst({
         where: { userId },
+        select: { id: true, fullName: true },
     });
     if (!serviceProvider) {
         throw new ApiErrors_1.default(http_status_1.default.BAD_REQUEST, "Please complete your profile first");
@@ -52,6 +55,7 @@ const applyToProject = (payload, userId) => __awaiter(void 0, void 0, void 0, fu
             clientProjectId: payload.clientProjectId,
             serviceProviderId: serviceProvider.id,
         },
+        select: { id: true },
     });
     if (isApplyed) {
         throw new ApiErrors_1.default(http_status_1.default.BAD_REQUEST, "You have already applyed for this project");
@@ -59,6 +63,12 @@ const applyToProject = (payload, userId) => __awaiter(void 0, void 0, void 0, fu
     const result = yield prisma_1.default.projectApplicants.create({
         data: Object.assign(Object.assign({}, payload), { clientProjectId: payload.clientProjectId, serviceProviderId: serviceProvider.id }),
     });
+    const notificationData = {
+        userId: project.user.id,
+        title: `Got application from ${serviceProvider.fullName}`,
+        body: `${serviceProvider.fullName} just apply for the job ${project.title}`,
+    };
+    (0, sendNotification_1.sendNotification)(notificationData);
     return result;
 });
 const applyToJob = (payload, cvFile, userId) => __awaiter(void 0, void 0, void 0, function* () {
@@ -68,17 +78,19 @@ const applyToJob = (payload, cvFile, userId) => __awaiter(void 0, void 0, void 0
     if (!cvFile) {
         throw new ApiErrors_1.default(http_status_1.default.NOT_FOUND, "CV not found");
     }
-    const project = yield prisma_1.default.job.findFirst({
+    const job = yield prisma_1.default.job.findFirst({
         where: { id: payload.jobId },
+        select: { status: true, title: true, user: { select: { id: true } } },
     });
-    if (!project) {
+    if (!job) {
         throw new ApiErrors_1.default(http_status_1.default.NOT_FOUND, "Job not found");
     }
-    if (project.status !== "PENDING") {
-        throw new ApiErrors_1.default(http_status_1.default.BAD_REQUEST, `This project already ${project.status}`);
+    if (job.status !== "PENDING") {
+        throw new ApiErrors_1.default(http_status_1.default.BAD_REQUEST, `This job already ${job.status}`);
     }
     const serviceProvider = yield prisma_1.default.serviceProvider.findFirst({
         where: { userId },
+        select: { id: true, fullName: true },
     });
     if (!serviceProvider) {
         throw new ApiErrors_1.default(http_status_1.default.BAD_REQUEST, "Please complete your profile first");
@@ -100,6 +112,12 @@ const applyToJob = (payload, cvFile, userId) => __awaiter(void 0, void 0, void 0
             serviceProviderId: serviceProvider.id,
         },
     });
+    const notificationData = {
+        userId: job.user.id,
+        title: `Got application from ${serviceProvider.fullName}`,
+        body: `${serviceProvider.fullName} just apply for the job ${job.title}`,
+    };
+    (0, sendNotification_1.sendNotification)(notificationData);
     return result;
 });
 const rateServiceProvider = (payload, userId) => __awaiter(void 0, void 0, void 0, function* () {
@@ -197,6 +215,17 @@ const getAllServiceProvider = (params, options, userId, userRole) => __awaiter(v
             : {
                 rating: "asc",
             },
+        select: {
+            id: true,
+            image: true,
+            fullName: true,
+            location: true,
+            expertise: true,
+            rating: true,
+            hourlyRate: true,
+            let: true,
+            lan: true,
+        },
     });
     const total = yield prisma_1.default.serviceProvider.count({
         where: whereConditons,
@@ -242,10 +271,79 @@ const getSingleServiceProvide = (ServiceProviderId) => __awaiter(void 0, void 0,
     }
     return result;
 });
+const myWorkschedule = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield prisma_1.default.projectApplicants.findMany({
+        where: { serviceProviderId: userId, status: "ACCEPTED" },
+        select: { clientProject: { select: { date: true, time: true } } },
+        orderBy: { clientProject: { date: "desc" } },
+    });
+    return result;
+});
+const myProjects = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield prisma_1.default.serviceProvider.findFirst({
+        where: { userId },
+    });
+    const result = yield prisma_1.default.projectApplicants.findMany({
+        where: { serviceProviderId: user === null || user === void 0 ? void 0 : user.id, status: "ACCEPTED" },
+        select: {
+            clientProject: {
+                select: {
+                    id: true,
+                    title: true,
+                    date: true,
+                    category: true,
+                    status: true,
+                    description: true,
+                },
+            },
+        },
+        orderBy: { clientProject: { date: "desc" } },
+    });
+    return result;
+});
+const myJobs = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield prisma_1.default.serviceProvider.findFirst({
+        where: { userId },
+    });
+    const result = yield prisma_1.default.jobApplicants.findMany({
+        where: { serviceProviderId: user === null || user === void 0 ? void 0 : user.id, status: "ACCEPTED" },
+        select: {
+            job: {
+                select: {
+                    id: true,
+                    title: true,
+                    date: true,
+                    category: true,
+                    status: true,
+                    description: true,
+                },
+            },
+        },
+        orderBy: { job: { date: "desc" } },
+    });
+    return result;
+});
+const getAllConcierge = () => __awaiter(void 0, void 0, void 0, function* () {
+    const resrut = yield prisma_1.default.concierge.findMany({
+        select: { id: true, image: true, fullName: true, location: true },
+    });
+    return resrut;
+});
+const getSingleConcierge = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const resrut = yield prisma_1.default.concierge.findFirst({
+        where: { id },
+    });
+    return resrut;
+});
 exports.ServiceProviderService = {
     applyToProject,
     applyToJob,
     getAllServiceProvider,
     getSingleServiceProvide,
     rateServiceProvider,
+    myWorkschedule,
+    myProjects,
+    myJobs,
+    getAllConcierge,
+    getSingleConcierge
 };

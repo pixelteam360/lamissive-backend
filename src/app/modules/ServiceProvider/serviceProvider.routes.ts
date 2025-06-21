@@ -10,15 +10,11 @@ const router = express.Router();
 
 router.route("/").get(auth(), ServiceProviderController.getAllServiceProvider);
 
-router
-  .route("/my")
-  .get(
-    auth(UserRole.SERVICE_PROVIDER),
-    ServiceProviderController.myProjects
-  );
+router.route("/concierges").get(auth(), ServiceProviderController.getAllConcierge);
 
 router
   .route("/project-apply")
+  .get(auth(UserRole.SERVICE_PROVIDER), ServiceProviderController.myProjects)
   .post(
     auth(UserRole.SERVICE_PROVIDER),
     validateRequest(ServiceProviderValidation.ApplyToProjectValidation),
@@ -27,6 +23,7 @@ router
 
 router
   .route("/job-apply")
+  .get(auth(UserRole.SERVICE_PROVIDER), ServiceProviderController.myJobs)
   .post(
     auth(UserRole.SERVICE_PROVIDER),
     fileUploader.uploadFile,
@@ -48,5 +45,7 @@ router
 router
   .route("/schedule/:id")
   .get(auth(), ServiceProviderController.myWorkschedule);
+
+  router.route("/concierges/:id").get(auth(), ServiceProviderController.getSingleConcierge);
 
 export const ServiceProviderRoutes = router;

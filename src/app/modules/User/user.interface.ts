@@ -7,6 +7,7 @@ export type TUser = {
   role: UserRole;
   isDeleted: boolean;
   completedProfile: boolean;
+  fcmToken: string;
   expirationOtp?: Date;
   otp?: number;
   createdAt?: Date;

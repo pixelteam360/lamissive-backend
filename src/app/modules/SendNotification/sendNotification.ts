@@ -4,7 +4,7 @@ import { Tnotification } from "./notificationInterface";
 
 export const sendNotification = async (payload: Tnotification) => {
   const user = await prisma.user.findFirst({
-    where: { id: payload.userId },
+    where: { id: payload.userId, fcmToken: { not: "" } },
     select: { fcmToken: true },
   });
 

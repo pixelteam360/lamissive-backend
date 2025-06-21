@@ -125,6 +125,42 @@ const updateServiceProviderProfile = (payload, imageFile, userId) => __awaiter(v
     });
     return result;
 });
+const createConciergeProfile = (payload, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const concierge = yield prisma_1.default.concierge.findFirst({
+        where: { userId },
+    });
+    if (concierge) {
+        throw new ApiErrors_1.default(http_status_1.default.BAD_REQUEST, "You have already created your profile");
+    }
+    const result = yield prisma_1.default.$transaction((prisma) => __awaiter(void 0, void 0, void 0, function* () {
+        const concierge = yield prisma.concierge.create({
+            data: Object.assign(Object.assign({}, payload), { userId }),
+        });
+        yield prisma.user.update({
+            where: { id: userId },
+            data: { completedProfile: true },
+        });
+        return concierge;
+    }));
+    return result;
+});
+const updateConciergeProfile = (payload, imageFile, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const concierge = yield prisma_1.default.concierge.findFirst({
+        where: { userId },
+    });
+    if (!concierge) {
+        throw new ApiErrors_1.default(http_status_1.default.NOT_FOUND, "User profile not found");
+    }
+    let image = concierge.image;
+    if (imageFile) {
+        image = (yield fileUploader_1.fileUploader.uploadToDigitalOcean(imageFile)).Location;
+    }
+    const result = yield prisma_1.default.concierge.update({
+        where: { id: concierge.id },
+        data: Object.assign(Object.assign({}, payload), { image, userId }),
+    });
+    return result;
+});
 exports.UserProfileService = {
     createClietnProfile,
     updateClietnProfile,
@@ -132,4 +168,6 @@ exports.UserProfileService = {
     updateEmployerProfile,
     createServiceProviderProfile,
     updateServiceProviderProfile,
+    createConciergeProfile,
+    updateConciergeProfile,
 };

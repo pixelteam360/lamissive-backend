@@ -71,6 +71,29 @@ const updateServiceProviderProfile = catchAsync(async (req, res) => {
   });
 });
 
+const createConciergeProfile = catchAsync(async (req, res) => {
+  const result = await UserProfileService.createConciergeProfile(
+    req.body,
+    req.user.id
+  );
+  sendResponse(res, {
+    message: "Concierge profile created successfully!",
+    data: result,
+  });
+});
+
+const updateConciergeProfile = catchAsync(async (req, res) => {
+  const result = await UserProfileService.updateConciergeProfile(
+    req.body,
+    req.file,
+    req.user.id
+  );
+  sendResponse(res, {
+    message: "Concierge updated successfully!",
+    data: result,
+  });
+});
+
 export const UserProfileController = {
   createUserProfile,
   updateClietnProfile,
@@ -78,4 +101,6 @@ export const UserProfileController = {
   updateEmployerProfile,
   createServiceProviderProfile,
   updateServiceProviderProfile,
+  createConciergeProfile,
+  updateConciergeProfile,
 };

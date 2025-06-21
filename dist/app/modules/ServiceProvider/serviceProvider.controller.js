@@ -56,10 +56,50 @@ const getSingleServiceProvide = (0, catchAsync_1.default)((req, res) => __awaite
         data: result,
     });
 }));
+const myWorkschedule = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield serviceProvider_service_1.ServiceProviderService.myWorkschedule(req.params.id);
+    (0, sendResponse_1.default)(res, {
+        message: "ServiceProvider schedule retrieved  successfully!",
+        data: result,
+    });
+}));
+const myProjects = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield serviceProvider_service_1.ServiceProviderService.myProjects(req.user.id);
+    (0, sendResponse_1.default)(res, {
+        message: "ServiceProvider project retrieved  successfully!",
+        data: result,
+    });
+}));
+const myJobs = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield serviceProvider_service_1.ServiceProviderService.myJobs(req.user.id);
+    (0, sendResponse_1.default)(res, {
+        message: "ServiceProvider jobs retrieved  successfully!",
+        data: result,
+    });
+}));
+const getAllConcierge = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield serviceProvider_service_1.ServiceProviderService.getAllConcierge();
+    (0, sendResponse_1.default)(res, {
+        message: "Concierges retrieved  successfully!",
+        data: result,
+    });
+}));
+const getSingleConcierge = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield serviceProvider_service_1.ServiceProviderService.getSingleConcierge(req.params.id);
+    (0, sendResponse_1.default)(res, {
+        message: "Concierge retrieved  successfully!",
+        data: result,
+    });
+}));
 exports.ServiceProviderController = {
     applyToProject,
     applyToJob,
     getAllServiceProvider,
     getSingleServiceProvide,
     rateServiceProvider,
+    myWorkschedule,
+    myProjects,
+    myJobs,
+    getAllConcierge,
+    getSingleConcierge
 };

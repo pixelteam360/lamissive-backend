@@ -26,6 +26,11 @@ model User {
   ClientProject    ClientProject[]
   Job              Job[]
   Notification     Notification[]
+  Concierge        Concierge?
+  sentRooms        Room[]           @relation("RoomSender")
+  receivedRooms    Room[]           @relation("RoomReceiver")
+  sentMessages     Chat[]           @relation("ChatSender")
+  receivedMessages Chat[]           @relation("ChatReceiver")
 
   @@map("Users")
 }
@@ -90,6 +95,25 @@ model ServiceProvider {
   PurchasedSubscription PurchasedSubscription[]
 
   @@map("Service-Provider")
+}
+
+model Concierge {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  fullName  String
+  location  String
+  image     String?  @default("")
+  about     String?  @default("")
+  gender    Gender
+  age       Int
+  exprience Int
+  let       Float
+  lan       Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String   @unique @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("Concierge")
 }
 
 model ClientProject {
@@ -196,7 +220,7 @@ model PurchasedSubscription {
   paymentId          String
   amount             Float
   activeSubscription Boolean         @default(true)
-  stratDate          DateTime        @default(now())
+  startDate          DateTime        @default(now())
   endDate            DateTime
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
@@ -206,6 +230,36 @@ model PurchasedSubscription {
   subscription       Subscription    @relation(fields: [subscriptionId], references: [id])
 
   @@map("Purchased-Subscription")
+}
+
+model Room {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  senderId   String   @db.ObjectId
+  receiverId String   @db.ObjectId
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  sender     User     @relation("RoomSender", fields: [senderId], references: [id])
+  receiver   User     @relation("RoomReceiver", fields: [receiverId], references: [id])
+  chat       Chat[]
+
+  @@map("rooms")
+}
+
+model Chat {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  message    String
+  images     String[]
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  senderId   String   @db.ObjectId
+  receiverId String   @db.ObjectId
+  roomId     String   @db.ObjectId
+  sender     User     @relation("ChatSender", fields: [senderId], references: [id])
+  receiver   User     @relation("ChatReceiver", fields: [receiverId], references: [id])
+  room       Room     @relation(fields: [roomId], references: [id])
+
+  @@map("chats")
 }
 
 enum UserRole {

@@ -372,10 +372,49 @@ const myProjects = async (userId: string) => {
         },
       },
     },
-    orderBy: { clientProject: { date: "asc" } },
+    orderBy: { clientProject: { date: "desc" } },
   });
 
   return result;
+};
+
+const myJobs = async (userId: string) => {
+  const user = await prisma.serviceProvider.findFirst({
+    where: { userId },
+  });
+
+  const result = await prisma.jobApplicants.findMany({
+    where: { serviceProviderId: user?.id, status: "ACCEPTED" },
+    select: {
+      job: {
+        select: {
+          id: true,
+          title: true,
+          date: true,
+          category: true,
+          status: true,
+          description: true,
+        },
+      },
+    },
+    orderBy: { job: { date: "desc" } },
+  });
+
+  return result;
+};
+
+const getAllConcierge = async () => {
+  const resrut = await prisma.concierge.findMany({
+    select: { id: true, image: true, fullName: true, location: true },
+  });
+  return resrut;
+};
+
+const getSingleConcierge = async (id: string) => {
+  const resrut = await prisma.concierge.findFirst({
+    where: {id},
+  });
+  return resrut;
 };
 
 export const ServiceProviderService = {
@@ -386,4 +425,7 @@ export const ServiceProviderService = {
   rateServiceProvider,
   myWorkschedule,
   myProjects,
+  myJobs,
+  getAllConcierge,
+  getSingleConcierge
 };

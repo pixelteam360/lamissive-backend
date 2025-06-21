@@ -65,9 +65,7 @@ const getSingleServiceProvide = catchAsync(async (req, res) => {
 });
 
 const myWorkschedule = catchAsync(async (req, res) => {
-  const result = await ServiceProviderService.myWorkschedule(
-    req.params.id
-  );
+  const result = await ServiceProviderService.myWorkschedule(req.params.id);
   sendResponse(res, {
     message: "ServiceProvider schedule retrieved  successfully!",
     data: result,
@@ -75,11 +73,33 @@ const myWorkschedule = catchAsync(async (req, res) => {
 });
 
 const myProjects = catchAsync(async (req, res) => {
-  const result = await ServiceProviderService.myProjects(
-    req.user.id
-  );
+  const result = await ServiceProviderService.myProjects(req.user.id);
   sendResponse(res, {
     message: "ServiceProvider project retrieved  successfully!",
+    data: result,
+  });
+});
+
+const myJobs = catchAsync(async (req, res) => {
+  const result = await ServiceProviderService.myJobs(req.user.id);
+  sendResponse(res, {
+    message: "ServiceProvider jobs retrieved  successfully!",
+    data: result,
+  });
+});
+
+const getAllConcierge = catchAsync(async (req, res) => {
+  const result = await ServiceProviderService.getAllConcierge();
+  sendResponse(res, {
+    message: "Concierges retrieved  successfully!",
+    data: result,
+  });
+});
+
+const getSingleConcierge = catchAsync(async (req, res) => {
+  const result = await ServiceProviderService.getSingleConcierge(req.params.id);
+  sendResponse(res, {
+    message: "Concierge retrieved  successfully!",
     data: result,
   });
 });
@@ -91,5 +111,8 @@ export const ServiceProviderController = {
   getSingleServiceProvide,
   rateServiceProvider,
   myWorkschedule,
-  myProjects
+  myProjects,
+  myJobs,
+  getAllConcierge,
+  getSingleConcierge
 };

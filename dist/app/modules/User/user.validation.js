@@ -12,10 +12,12 @@ const CreateUserValidationSchema = zod_1.z.object({
         "EMPLOYER",
         "CONCIERGE",
     ]),
+    fcmToken: zod_1.z.string().optional(),
 });
 const UserLoginValidationSchema = zod_1.z.object({
     email: zod_1.z.string().email("Email is required"),
     password: zod_1.z.string().min(8, "Password must be at least 8 characters long"),
+    fcmToken: zod_1.z.string().optional(),
 });
 exports.UserValidation = {
     CreateUserValidationSchema,

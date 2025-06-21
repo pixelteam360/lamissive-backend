@@ -29,6 +29,7 @@ const ApiErrors_1 = __importDefault(require("../../../errors/ApiErrors"));
 const paginationHelper_1 = require("../../../helpars/paginationHelper");
 const clientProject_costant_1 = require("./clientProject.costant");
 const http_status_1 = __importDefault(require("http-status"));
+const sendNotification_1 = require("../SendNotification/sendNotification");
 const createClientProject = (payload, userId) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prisma_1.default.clientProject.create({
         data: Object.assign(Object.assign({}, payload), { userId }),
@@ -158,7 +159,7 @@ const getMyProjects = (params, options, userId) => __awaiter(void 0, void 0, voi
 const confirmApplicant = (payload, projectId, userId) => __awaiter(void 0, void 0, void 0, function* () {
     const myProject = yield prisma_1.default.clientProject.findFirst({
         where: { id: projectId, userId },
-        select: { id: true },
+        select: { id: true, title: true, description: true },
     });
     if (!myProject) {
         throw new ApiErrors_1.default(http_status_1.default.UNAUTHORIZED, "This is not your project");
@@ -168,11 +169,19 @@ const confirmApplicant = (payload, projectId, userId) => __awaiter(void 0, void 
             clientProjectId: myProject.id,
             serviceProviderId: payload.serviceProviderId,
         },
-        select: { id: true },
+        select: {
+            id: true,
+            ServiceProvider: { select: { user: { select: { id: true } } } },
+        },
     });
     if (!projectApplicants) {
         throw new ApiErrors_1.default(http_status_1.default.NOT_FOUND, "Applicant not found");
     }
+    const notificationData = {
+        userId: projectApplicants.ServiceProvider.user.id,
+        title: `Project application accepted for ${myProject.title}`,
+        body: myProject.description,
+    };
     const result = yield prisma_1.default.$transaction((prisma) => __awaiter(void 0, void 0, void 0, function* () {
         const updateProject = yield prisma.clientProject.update({
             where: { id: myProject.id },
@@ -185,6 +194,7 @@ const confirmApplicant = (payload, projectId, userId) => __awaiter(void 0, void 
         yield prisma.projectApplicants.deleteMany({
             where: { clientProjectId: myProject.id, status: { not: "ACCEPTED" } },
         });
+        (0, sendNotification_1.sendNotification)(notificationData);
         return updateProject;
     }));
     return result;
@@ -193,12 +203,33 @@ const rejectApplicant = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prisma_1.default.projectApplicants.update({
         where: { id },
         data: { status: "REJECTED" },
+        select: {
+            id: true,
+            status: true,
+            ServiceProvider: { select: { user: { select: { id: true } } } },
+            clientProject: { select: { title: true } },
+        },
     });
+    const notificationData = {
+        userId: result.ServiceProvider.user.id,
+        title: `Project application rejected for ${result.clientProject.title}`,
+        body: "",
+    };
+    (0, sendNotification_1.sendNotification)(notificationData);
     return result;
 });
 const cancelProject = (id, userId) => __awaiter(void 0, void 0, void 0, function* () {
     const clientProject = yield prisma_1.default.clientProject.findFirst({
         where: { id, userId },
+        select: {
+            id: true,
+            title: true,
+            ProjectApplicants: {
+                select: {
+                    ServiceProvider: { select: { user: { select: { id: true } } } },
+                },
+            },
+        },
     });
     if (!clientProject) {
         throw new ApiErrors_1.default(http_status_1.default.BAD_REQUEST, "Unauthorize access");
@@ -207,6 +238,12 @@ const cancelProject = (id, userId) => __awaiter(void 0, void 0, void 0, function
         where: { id, userId },
         data: { status: "CANCELLED" },
     });
+    const notificationData = {
+        userId: clientProject.ProjectApplicants[0].ServiceProvider.user.id,
+        title: `Project cancelled from ${clientProject.title}`,
+        body: "",
+    };
+    (0, sendNotification_1.sendNotification)(notificationData);
     return result;
 });
 exports.ClientProjectService = {
