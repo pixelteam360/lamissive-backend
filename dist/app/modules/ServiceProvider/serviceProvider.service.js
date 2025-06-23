@@ -223,6 +223,7 @@ const getAllServiceProvider = (params, options, userId, userRole) => __awaiter(v
             expertise: true,
             rating: true,
             hourlyRate: true,
+            userId: true,
             let: true,
             lan: true,
         },
@@ -345,5 +346,5 @@ exports.ServiceProviderService = {
     myProjects,
     myJobs,
     getAllConcierge,
-    getSingleConcierge
+    getSingleConcierge,
 };

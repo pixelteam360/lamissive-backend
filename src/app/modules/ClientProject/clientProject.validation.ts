@@ -24,8 +24,18 @@ const confirmApplicantSchema = z.object({
   serviceProviderId: z.string(),
 });
 
+const directHireValidationSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  time: z.string(),
+  priceRange: z.string(),
+  category: CategoryEnum,
+  serviceProviderId: z.string(),
+  bidPrice: z.number(),
+});
 
 export const ClientProjectValidation = {
   CreateClientProjectValidationSchema,
   confirmApplicantSchema,
+  directHireValidationSchema
 };

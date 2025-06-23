@@ -20,6 +20,8 @@ const sendNotification = (payload) => __awaiter(void 0, void 0, void 0, function
         where: { id: payload.userId, fcmToken: { not: "" } },
         select: { fcmToken: true },
     });
+    if (!user)
+        return;
     const message = {
         notification: { title: payload.title, body: payload.body },
         token: user === null || user === void 0 ? void 0 : user.fcmToken,

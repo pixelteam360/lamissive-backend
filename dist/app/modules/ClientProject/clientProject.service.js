@@ -36,6 +36,37 @@ const createClientProject = (payload, userId) => __awaiter(void 0, void 0, void 
     });
     return result;
 });
+const directHire = (payload, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const serviceProvider = yield prisma_1.default.serviceProvider.findFirst({
+        where: { id: payload.serviceProviderId },
+        select: { id: true },
+    });
+    if (!serviceProvider) {
+        throw new ApiErrors_1.default(http_status_1.default.NOT_FOUND, "Service provider not found");
+    }
+    const notificationData = {
+        userId: payload.serviceProviderId,
+        title: `You are hire for ${payload.title}`,
+        body: payload.description,
+    };
+    const { bidPrice, serviceProviderId } = payload, restData = __rest(payload, ["bidPrice", "serviceProviderId"]);
+    const result = yield prisma_1.default.$transaction((prisma) => __awaiter(void 0, void 0, void 0, function* () {
+        const createProject = yield prisma.clientProject.create({
+            data: Object.assign(Object.assign({}, restData), { userId, status: "ONGOING" }),
+        });
+        yield prisma.projectApplicants.create({
+            data: {
+                serviceProviderId: payload.serviceProviderId,
+                clientProjectId: createProject.id,
+                bidPrice: payload.bidPrice,
+                status: "ACCEPTED",
+            },
+        });
+        (0, sendNotification_1.sendNotification)(notificationData);
+        return createProject;
+    }));
+    return result;
+});
 const getClientProjectsFromDb = (params, options) => __awaiter(void 0, void 0, void 0, function* () {
     const { page, limit, skip } = paginationHelper_1.paginationHelper.calculatePagination(options);
     const { searchTerm } = params, filterData = __rest(params, ["searchTerm"]);
@@ -90,7 +121,14 @@ const getSingleClientProject = (id) => __awaiter(void 0, void 0, void 0, functio
         include: {
             user: {
                 select: {
-                    Client: { select: { fullName: true, location: true, image: true } },
+                    Client: {
+                        select: {
+                            fullName: true,
+                            location: true,
+                            image: true,
+                            userId: true,
+                        },
+                    },
                 },
             },
             ProjectApplicants: {
@@ -100,7 +138,7 @@ const getSingleClientProject = (id) => __awaiter(void 0, void 0, void 0, functio
                     bidPrice: true,
                     status: true,
                     ServiceProvider: {
-                        select: { id: true, image: true, fullName: true },
+                        select: { id: true, image: true, fullName: true, userId: true },
                     },
                 },
             },
@@ -254,4 +292,5 @@ exports.ClientProjectService = {
     confirmApplicant,
     rejectApplicant,
     cancelProject,
+    directHire,
 };

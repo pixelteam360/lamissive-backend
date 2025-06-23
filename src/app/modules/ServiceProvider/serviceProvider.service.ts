@@ -281,6 +281,7 @@ const getAllServiceProvider = async (
       expertise: true,
       rating: true,
       hourlyRate: true,
+      userId: true,
       let: true,
       lan: true,
     },
@@ -412,7 +413,7 @@ const getAllConcierge = async () => {
 
 const getSingleConcierge = async (id: string) => {
   const resrut = await prisma.concierge.findFirst({
-    where: {id},
+    where: { id },
   });
   return resrut;
 };
@@ -427,5 +428,5 @@ export const ServiceProviderService = {
   myProjects,
   myJobs,
   getAllConcierge,
-  getSingleConcierge
+  getSingleConcierge,
 };

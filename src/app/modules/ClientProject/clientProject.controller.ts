@@ -80,6 +80,14 @@ const cancelProject = catchAsync(async (req, res) => {
   });
 });
 
+const directHire = catchAsync(async (req, res) => {
+  const result = await ClientProjectService.directHire(req.body, req.user.id);
+  sendResponse(res, {
+    message: "Project assigne successfully!",
+    data: result,
+  });
+});
+
 export const ClientProjectController = {
   createClientProject,
   getClientProjects,
@@ -88,4 +96,5 @@ export const ClientProjectController = {
   confirmApplicant,
   rejectApplicant,
   cancelProject,
+  directHire
 };

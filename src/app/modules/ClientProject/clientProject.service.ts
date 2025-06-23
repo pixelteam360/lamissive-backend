@@ -20,6 +20,46 @@ const createClientProject = async (payload: TClientProject, userId: string) => {
   return result;
 };
 
+const directHire = async (payload: TClientProject, userId: string) => {
+  const serviceProvider = await prisma.serviceProvider.findFirst({
+    where: { id: payload.serviceProviderId },
+    select: { id: true },
+  });
+
+  if (!serviceProvider) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Service provider not found");
+  }
+
+  const notificationData: Tnotification = {
+    userId: payload.serviceProviderId!,
+    title: `You are hire for ${payload.title}`,
+    body: payload.description,
+  };
+
+  const { bidPrice, serviceProviderId, ...restData } = payload;
+
+  const result = await prisma.$transaction(async (prisma) => {
+    const createProject = await prisma.clientProject.create({
+      data: { ...restData, userId, status: "ONGOING" },
+    });
+
+    await prisma.projectApplicants.create({
+      data: {
+        serviceProviderId: payload.serviceProviderId!,
+        clientProjectId: createProject.id,
+        bidPrice: payload.bidPrice,
+        status: "ACCEPTED",
+      },
+    });
+
+    sendNotification(notificationData);
+
+    return createProject;
+  });
+
+  return result;
+};
+
 const getClientProjectsFromDb = async (
   params: IClientProjectFilterRequest,
   options: IPaginationOptions
@@ -84,7 +124,14 @@ const getSingleClientProject = async (id: string) => {
     include: {
       user: {
         select: {
-          Client: { select: { fullName: true, location: true, image: true } },
+          Client: {
+            select: {
+              fullName: true,
+              location: true,
+              image: true,
+              userId: true,
+            },
+          },
         },
       },
       ProjectApplicants: {
@@ -94,7 +141,7 @@ const getSingleClientProject = async (id: string) => {
           bidPrice: true,
           status: true,
           ServiceProvider: {
-            select: { id: true, image: true, fullName: true },
+            select: { id: true, image: true, fullName: true, userId: true },
           },
         },
       },
@@ -286,4 +333,5 @@ export const ClientProjectService = {
   confirmApplicant,
   rejectApplicant,
   cancelProject,
+  directHire,
 };

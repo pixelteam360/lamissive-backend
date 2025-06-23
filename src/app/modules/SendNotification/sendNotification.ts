@@ -8,6 +8,8 @@ export const sendNotification = async (payload: Tnotification) => {
     select: { fcmToken: true },
   });
 
+  if (!user) return;
+
   const message = {
     notification: { title: payload.title, body: payload.body },
     token: user?.fcmToken!,

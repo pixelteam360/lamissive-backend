@@ -71,6 +71,13 @@ const cancelProject = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
         data: result,
     });
 }));
+const directHire = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield clientProject_service_1.ClientProjectService.directHire(req.body, req.user.id);
+    (0, sendResponse_1.default)(res, {
+        message: "Project assigne successfully!",
+        data: result,
+    });
+}));
 exports.ClientProjectController = {
     createClientProject,
     getClientProjects,
@@ -79,4 +86,5 @@ exports.ClientProjectController = {
     confirmApplicant,
     rejectApplicant,
     cancelProject,
+    directHire
 };

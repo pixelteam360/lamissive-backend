@@ -73,7 +73,9 @@ const getJobsFromDb = (params, options) => __awaiter(void 0, void 0, void 0, fun
             },
         include: {
             user: {
-                select: { Employ: { select: { fullName: true, location: true } } },
+                select: {
+                    Employ: { select: { fullName: true, location: true, image: true } },
+                },
             },
             _count: {
                 select: { JobApplicants: { where: { status: { equals: "PENDING" } } } },
@@ -98,7 +100,7 @@ const getSingleJob = (id) => __awaiter(void 0, void 0, void 0, function* () {
         include: {
             user: {
                 select: {
-                    Employ: { select: { fullName: true, location: true, image: true } },
+                    Employ: { select: { id: true, fullName: true, location: true, image: true } },
                 },
             },
             _count: {
@@ -111,7 +113,7 @@ const getSingleJob = (id) => __awaiter(void 0, void 0, void 0, function* () {
                     cv: true,
                     status: true,
                     ServiceProvider: {
-                        select: { id: true, image: true, fullName: true },
+                        select: { id: true, image: true, fullName: true, userId: true },
                     },
                 },
             },
@@ -122,6 +124,16 @@ const getSingleJob = (id) => __awaiter(void 0, void 0, void 0, function* () {
 const getMyJobs = (userId) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prisma_1.default.job.findMany({
         where: { userId },
+        include: {
+            user: {
+                select: {
+                    Employ: { select: { fullName: true, location: true, image: true } },
+                },
+            },
+            _count: {
+                select: { JobApplicants: { where: { status: { equals: "PENDING" } } } },
+            },
+        },
     });
     return result;
 });

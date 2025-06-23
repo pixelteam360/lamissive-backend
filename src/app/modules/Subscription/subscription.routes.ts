@@ -9,18 +9,18 @@ const router = express.Router();
 
 router
   .route("/")
-  .get(auth(UserRole.ADMIN), SubscriptionController.getSubscriptions)
+  .get(auth(UserRole.ADMIN,UserRole.SERVICE_PROVIDER), SubscriptionController.getSubscriptions)
   .post(
-    auth(UserRole.ADMIN),
+    auth(UserRole.ADMIN,UserRole.SERVICE_PROVIDER),
     validateRequest(SubscriptionValidation.CreateSubscriptionValidationSchema),
     SubscriptionController.createSubscription
   );
 
 router
   .route("/:id")
-  .get(auth(UserRole.ADMIN), SubscriptionController.getSingleSubscription)
+  .get(auth(UserRole.ADMIN,UserRole.SERVICE_PROVIDER), SubscriptionController.getSingleSubscription)
   .put(
-    auth(UserRole.ADMIN),
+    auth(UserRole.ADMIN,UserRole.SERVICE_PROVIDER),
     validateRequest(SubscriptionValidation.SubscriptionUpdateSchema),
     SubscriptionController.updateSubscription
   )

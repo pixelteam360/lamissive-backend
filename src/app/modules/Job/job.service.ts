@@ -62,7 +62,9 @@ const getJobsFromDb = async (
           },
     include: {
       user: {
-        select: { Employ: { select: { fullName: true, location: true } } },
+        select: {
+          Employ: { select: { fullName: true, location: true, image: true } },
+        },
       },
       _count: {
         select: { JobApplicants: { where: { status: { equals: "PENDING" } } } },
@@ -90,7 +92,7 @@ const getSingleJob = async (id: string) => {
     include: {
       user: {
         select: {
-          Employ: { select: { fullName: true, location: true, image: true } },
+          Employ: { select: { id: true, fullName: true, location: true, image: true } },
         },
       },
       _count: {
@@ -103,7 +105,7 @@ const getSingleJob = async (id: string) => {
           cv: true,
           status: true,
           ServiceProvider: {
-            select: { id: true, image: true, fullName: true },
+            select: { id: true, image: true, fullName: true, userId: true },
           },
         },
       },
@@ -116,6 +118,16 @@ const getSingleJob = async (id: string) => {
 const getMyJobs = async (userId: string) => {
   const result = await prisma.job.findMany({
     where: { userId },
+    include: {
+      user: {
+        select: {
+          Employ: { select: { fullName: true, location: true, image: true } },
+        },
+      },
+      _count: {
+        select: { JobApplicants: { where: { status: { equals: "PENDING" } } } },
+      },
+    },
   });
 
   return result;

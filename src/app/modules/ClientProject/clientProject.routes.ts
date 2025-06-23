@@ -18,6 +18,16 @@ router
   );
 
 router
+  .route("/direct-hire")
+  .post(
+    auth(UserRole.CLIENT),
+    validateRequest(
+      ClientProjectValidation.CreateClientProjectValidationSchema
+    ),
+    ClientProjectController.directHire
+  );
+
+router
   .route("/my")
   .get(auth(UserRole.CLIENT), ClientProjectController.getMyProjects);
 

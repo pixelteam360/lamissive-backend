@@ -10,6 +10,8 @@ export type TClientProject = {
   category: Category; 
   status: Status;     
   userId: string;
+  serviceProviderId?: string
+  bidPrice: number
 };
 
 export type IClientProjectFilterRequest = {

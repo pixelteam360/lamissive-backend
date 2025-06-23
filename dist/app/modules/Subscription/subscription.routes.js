@@ -13,11 +13,11 @@ const client_1 = require("@prisma/client");
 const router = express_1.default.Router();
 router
     .route("/")
-    .get((0, auth_1.default)(client_1.UserRole.ADMIN), subscription_controller_1.SubscriptionController.getSubscriptions)
-    .post((0, auth_1.default)(client_1.UserRole.ADMIN), (0, validateRequest_1.default)(subscription_validation_1.SubscriptionValidation.CreateSubscriptionValidationSchema), subscription_controller_1.SubscriptionController.createSubscription);
+    .get((0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.SERVICE_PROVIDER), subscription_controller_1.SubscriptionController.getSubscriptions)
+    .post((0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.SERVICE_PROVIDER), (0, validateRequest_1.default)(subscription_validation_1.SubscriptionValidation.CreateSubscriptionValidationSchema), subscription_controller_1.SubscriptionController.createSubscription);
 router
     .route("/:id")
-    .get((0, auth_1.default)(client_1.UserRole.ADMIN), subscription_controller_1.SubscriptionController.getSingleSubscription)
-    .put((0, auth_1.default)(client_1.UserRole.ADMIN), (0, validateRequest_1.default)(subscription_validation_1.SubscriptionValidation.SubscriptionUpdateSchema), subscription_controller_1.SubscriptionController.updateSubscription)
+    .get((0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.SERVICE_PROVIDER), subscription_controller_1.SubscriptionController.getSingleSubscription)
+    .put((0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.SERVICE_PROVIDER), (0, validateRequest_1.default)(subscription_validation_1.SubscriptionValidation.SubscriptionUpdateSchema), subscription_controller_1.SubscriptionController.updateSubscription)
     .delete((0, auth_1.default)(client_1.UserRole.ADMIN), subscription_controller_1.SubscriptionController.deleteSubscription);
 exports.SubscriptionRoutes = router;

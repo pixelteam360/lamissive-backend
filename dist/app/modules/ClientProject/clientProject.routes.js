@@ -16,6 +16,9 @@ router
     .get(clientProject_controller_1.ClientProjectController.getClientProjects)
     .post((0, auth_1.default)(client_1.UserRole.CLIENT), (0, validateRequest_1.default)(clientProject_validation_1.ClientProjectValidation.CreateClientProjectValidationSchema), clientProject_controller_1.ClientProjectController.createClientProject);
 router
+    .route("/direct-hire")
+    .post((0, auth_1.default)(client_1.UserRole.CLIENT), (0, validateRequest_1.default)(clientProject_validation_1.ClientProjectValidation.CreateClientProjectValidationSchema), clientProject_controller_1.ClientProjectController.directHire);
+router
     .route("/my")
     .get((0, auth_1.default)(client_1.UserRole.CLIENT), clientProject_controller_1.ClientProjectController.getMyProjects);
 router

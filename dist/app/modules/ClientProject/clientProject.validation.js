@@ -23,7 +23,17 @@ const CreateClientProjectValidationSchema = zod_1.z.object({
 const confirmApplicantSchema = zod_1.z.object({
     serviceProviderId: zod_1.z.string(),
 });
+const directHireValidationSchema = zod_1.z.object({
+    title: zod_1.z.string(),
+    description: zod_1.z.string(),
+    time: zod_1.z.string(),
+    priceRange: zod_1.z.string(),
+    category: exports.CategoryEnum,
+    serviceProviderId: zod_1.z.string(),
+    bidPrice: zod_1.z.number(),
+});
 exports.ClientProjectValidation = {
     CreateClientProjectValidationSchema,
     confirmApplicantSchema,
+    directHireValidationSchema
 };
