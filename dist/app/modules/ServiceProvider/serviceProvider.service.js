@@ -104,7 +104,7 @@ const applyToJob = (payload, cvFile, userId) => __awaiter(void 0, void 0, void 0
     if (isApplyed) {
         throw new ApiErrors_1.default(http_status_1.default.BAD_REQUEST, "You have already applyed for this project");
     }
-    const cv = (yield fileUploader_1.fileUploader.uploadToCloudinary(cvFile)).Location;
+    const cv = (yield fileUploader_1.fileUploader.uploadToDigitalOcean(cvFile)).Location;
     const result = yield prisma_1.default.jobApplicants.create({
         data: {
             cv,

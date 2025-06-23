@@ -184,7 +184,7 @@ const updateProfile = (payload, imageFile, userId) => __awaiter(void 0, void 0, 
     const result = yield prisma_1.default.$transaction((prisma) => __awaiter(void 0, void 0, void 0, function* () {
         let image = "";
         if (imageFile) {
-            image = (yield fileUploader_1.fileUploader.uploadToCloudinary(imageFile)).Location;
+            image = (yield fileUploader_1.fileUploader.uploadToDigitalOcean(imageFile)).Location;
         }
         const createUserProfile = yield prisma.user.update({
             where: { id: userId },

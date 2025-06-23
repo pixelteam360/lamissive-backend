@@ -13,8 +13,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = __importDefault(require("./config"));
+const node_cron_1 = __importDefault(require("node-cron"));
 const app_1 = __importDefault(require("./app"));
 const webSocket_1 = require("./app/modules/WebSocket/webSocket");
+const purchasedSubscription_service_1 = require("./app/modules/PurchasedSubscription/purchasedSubscription.service");
 let server;
 function startServer() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -24,6 +26,9 @@ function startServer() {
         (0, webSocket_1.setupWebSocket)(server);
     });
 }
+node_cron_1.default.schedule("0 0 * * *", () => __awaiter(void 0, void 0, void 0, function* () {
+    yield (0, purchasedSubscription_service_1.checkSubscriptions)();
+}));
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         yield startServer();

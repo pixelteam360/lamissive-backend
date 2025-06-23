@@ -132,7 +132,7 @@ const applyToJob = async (
     );
   }
 
-  const cv = (await fileUploader.uploadToCloudinary(cvFile)).Location;
+  const cv = (await fileUploader.uploadToDigitalOcean(cvFile)).Location;
 
   const result = await prisma.jobApplicants.create({
     data: {

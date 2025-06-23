@@ -117,26 +117,26 @@ const getMyPurchasedSubscription = (userId) => __awaiter(void 0, void 0, void 0,
     return result;
 });
 const checkSubscriptions = () => __awaiter(void 0, void 0, void 0, function* () {
-    // const today = new Date();
-    // const expiredSubscriptions = await prisma.purchasedSubscription.findMany({
-    //   where: { endDate: { lt: today }, activeSubscription: true },
-    //   select: { id: true, userId: true },
-    // });
-    // const expiredUserIds = expiredSubscriptions.map((sub) => sub.userId);
-    // await prisma.$transaction(async (prisma) => {
-    //   const updateSubscription = await prisma.purchasedSubscription.updateMany({
-    //     where: { userId: { in: expiredUserIds } },
-    //     data: { activeSubscription: false },
-    //   });
-    //   const updateUser = await prisma.user.updateMany({
-    //     where: { id: { in: expiredUserIds }, activeSubscription: true },
-    //     data: { activeSubscription: false },
-    //   });
-    //   return {
-    //     updateSubscription,
-    //     updateUser,
-    //   };
-    // });
+    const today = new Date();
+    const expiredSubscriptions = yield prisma_1.default.purchasedSubscription.findMany({
+        where: { endDate: { lt: today }, activeSubscription: true },
+        select: { id: true, serviceProviderId: true },
+    });
+    const expiredUserIds = expiredSubscriptions.map((sub) => sub.serviceProviderId);
+    yield prisma_1.default.$transaction((prisma) => __awaiter(void 0, void 0, void 0, function* () {
+        const updateSubscription = yield prisma.purchasedSubscription.updateMany({
+            where: { serviceProviderId: { in: expiredUserIds } },
+            data: { activeSubscription: false },
+        });
+        const updateUser = yield prisma.serviceProvider.updateMany({
+            where: { id: { in: expiredUserIds }, activeSubscription: true },
+            data: { activeSubscription: false },
+        });
+        return {
+            updateSubscription,
+            updateUser,
+        };
+    }));
 });
 exports.checkSubscriptions = checkSubscriptions;
 exports.PurchasedSubscriptionService = {

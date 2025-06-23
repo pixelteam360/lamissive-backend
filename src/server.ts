@@ -1,8 +1,9 @@
 import { Server } from "http";
 import config from "./config";
-
+import cron from "node-cron";
 import app from "./app";
 import { setupWebSocket } from "./app/modules/WebSocket/webSocket";
+import { checkSubscriptions } from "./app/modules/PurchasedSubscription/purchasedSubscription.service";
 
 let server: Server;
 
@@ -13,13 +14,17 @@ async function startServer() {
   setupWebSocket(server);
 }
 
+cron.schedule("0 0 * * *", async () => {
+  await checkSubscriptions();
+});
+
 async function main() {
   await startServer();
   const exitHandler = () => {
     if (server) {
       server.close(() => {
         console.info("Server closed!");
-        restartServer(); 
+        restartServer();
       });
     } else {
       process.exit(1);

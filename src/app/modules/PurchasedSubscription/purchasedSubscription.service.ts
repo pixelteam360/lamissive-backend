@@ -133,26 +133,30 @@ const getMyPurchasedSubscription = async (userId: string) => {
 };
 
 export const checkSubscriptions = async () => {
-  // const today = new Date();
-  // const expiredSubscriptions = await prisma.purchasedSubscription.findMany({
-  //   where: { endDate: { lt: today }, activeSubscription: true },
-  //   select: { id: true, userId: true },
-  // });
-  // const expiredUserIds = expiredSubscriptions.map((sub) => sub.userId);
-  // await prisma.$transaction(async (prisma) => {
-  //   const updateSubscription = await prisma.purchasedSubscription.updateMany({
-  //     where: { userId: { in: expiredUserIds } },
-  //     data: { activeSubscription: false },
-  //   });
-  //   const updateUser = await prisma.user.updateMany({
-  //     where: { id: { in: expiredUserIds }, activeSubscription: true },
-  //     data: { activeSubscription: false },
-  //   });
-  //   return {
-  //     updateSubscription,
-  //     updateUser,
-  //   };
-  // });
+  const today = new Date();
+  const expiredSubscriptions = await prisma.purchasedSubscription.findMany({
+    where: { endDate: { lt: today }, activeSubscription: true },
+    select: { id: true, serviceProviderId: true },
+  });
+
+  const expiredUserIds = expiredSubscriptions.map((sub) => sub.serviceProviderId);
+
+  await prisma.$transaction(async (prisma) => {
+    const updateSubscription = await prisma.purchasedSubscription.updateMany({
+      where: { serviceProviderId: { in: expiredUserIds } },
+      data: { activeSubscription: false },
+    });
+
+    const updateUser = await prisma.serviceProvider.updateMany({
+      where: { id: { in: expiredUserIds }, activeSubscription: true },
+      data: { activeSubscription: false },
+    });
+
+    return {
+      updateSubscription,
+      updateUser,
+    };
+  });
 };
 
 export const PurchasedSubscriptionService = {

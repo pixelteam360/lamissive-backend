@@ -171,7 +171,7 @@ const updateProfile = async (payload: User, imageFile: any, userId: string) => {
   const result = await prisma.$transaction(async (prisma) => {
     let image = "";
     if (imageFile) {
-      image = (await fileUploader.uploadToCloudinary(imageFile)).Location;
+      image = (await fileUploader.uploadToDigitalOcean(imageFile)).Location;
     }
 
     const createUserProfile = await prisma.user.update({
