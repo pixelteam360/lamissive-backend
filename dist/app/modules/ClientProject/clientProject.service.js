@@ -129,6 +129,14 @@ const getSingleClientProject = (id) => __awaiter(void 0, void 0, void 0, functio
                             userId: true,
                         },
                     },
+                    Employ: {
+                        select: {
+                            fullName: true,
+                            location: true,
+                            image: true,
+                            userId: true,
+                        },
+                    },
                 },
             },
             ProjectApplicants: {

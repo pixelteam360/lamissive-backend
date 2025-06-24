@@ -132,6 +132,14 @@ const getSingleClientProject = async (id: string) => {
               userId: true,
             },
           },
+          Employ: {
+            select: {
+              fullName: true,
+              location: true,
+              image: true,
+              userId: true,
+            },
+          },
         },
       },
       ProjectApplicants: {

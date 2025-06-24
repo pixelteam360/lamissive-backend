@@ -10,7 +10,7 @@ router
   .route("/")
   .get(ClientProjectController.getClientProjects)
   .post(
-    auth(UserRole.CLIENT),
+    auth(UserRole.CLIENT, UserRole.EMPLOYER),
     validateRequest(
       ClientProjectValidation.CreateClientProjectValidationSchema
     ),
@@ -20,7 +20,7 @@ router
 router
   .route("/direct-hire")
   .post(
-    auth(UserRole.CLIENT),
+    auth(UserRole.CLIENT, UserRole.EMPLOYER),
     validateRequest(
       ClientProjectValidation.CreateClientProjectValidationSchema
     ),
@@ -29,17 +29,17 @@ router
 
 router
   .route("/my")
-  .get(auth(UserRole.CLIENT), ClientProjectController.getMyProjects);
+  .get(auth(UserRole.CLIENT, UserRole.EMPLOYER), ClientProjectController.getMyProjects);
 
 router
   .route("/:id")
   .get(auth(), ClientProjectController.getSingleClientProject)
   .put(
-    auth(UserRole.CLIENT),
+    auth(UserRole.CLIENT, UserRole.EMPLOYER),
     validateRequest(ClientProjectValidation.confirmApplicantSchema),
     ClientProjectController.confirmApplicant
   )
-  .patch(auth(UserRole.CLIENT), ClientProjectController.rejectApplicant)
-  .delete(auth(UserRole.CLIENT), ClientProjectController.cancelProject);
+  .patch(auth(UserRole.CLIENT, UserRole.EMPLOYER), ClientProjectController.rejectApplicant)
+  .delete(auth(UserRole.CLIENT, UserRole.EMPLOYER), ClientProjectController.cancelProject);
 
 export const ClientProjectRoutes = router;

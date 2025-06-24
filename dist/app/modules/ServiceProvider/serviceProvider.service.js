@@ -270,12 +270,18 @@ const getSingleServiceProvide = (ServiceProviderId) => __awaiter(void 0, void 0,
     if (!result) {
         throw new ApiErrors_1.default(http_status_1.default.NOT_FOUND, "Service provider not found");
     }
-    return result;
+    const completedProject = yield prisma_1.default.projectApplicants.count({
+        where: {
+            serviceProviderId: result.id,
+            clientProject: { is: { status: "COMPLETED" } },
+        },
+    });
+    return Object.assign(Object.assign({}, result), { completedProject });
 });
 const myWorkschedule = (userId) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prisma_1.default.projectApplicants.findMany({
         where: { serviceProviderId: userId, status: "ACCEPTED" },
-        select: { clientProject: { select: { date: true, time: true } } },
+        select: { id: true, clientProject: { select: { date: true, time: true } } },
         orderBy: { clientProject: { date: "desc" } },
     });
     return result;

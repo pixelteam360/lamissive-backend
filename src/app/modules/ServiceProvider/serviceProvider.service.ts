@@ -341,13 +341,22 @@ const getSingleServiceProvide = async (ServiceProviderId: string) => {
   if (!result) {
     throw new ApiError(httpStatus.NOT_FOUND, "Service provider not found");
   }
-  return result;
+
+  const completedProject = await prisma.projectApplicants.count({
+    where: {
+      serviceProviderId: result.id,
+      clientProject: { is: { status: "COMPLETED" } },
+    },
+  });
+
+  return { ...result, completedProject };
+
 };
 
 const myWorkschedule = async (userId: string) => {
   const result = await prisma.projectApplicants.findMany({
     where: { serviceProviderId: userId, status: "ACCEPTED" },
-    select: { clientProject: { select: { date: true, time: true } } },
+    select: {id: true , clientProject: { select: { date: true, time: true} } },
     orderBy: { clientProject: { date: "desc" } },
   });
 
