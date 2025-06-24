@@ -15,6 +15,8 @@ router
     userController.createUser
   );
 
+router.get("/notifications", auth(), userController.myNotification);
+
 router
   .route("/profile")
   .get(auth(), userController.getMyProfile)

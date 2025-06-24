@@ -128,6 +128,32 @@ function setupWebSocket(server) {
                         const chats = yield prisma_1.default.chat.findMany({
                             where: { roomId: room.id },
                             orderBy: { createdAt: "asc" },
+                            select: {
+                                id: true,
+                                message: true,
+                                images: true,
+                                createdAt: true,
+                                updatedAt: true,
+                                receiverId: true,
+                                senderId: true,
+                                isRead: true,
+                                receiver: {
+                                    select: {
+                                        Client: { select: { image: true } },
+                                        Employ: { select: { image: true } },
+                                        ServiceProvider: { select: { image: true } },
+                                        Concierge: { select: { image: true } },
+                                    },
+                                },
+                                sender: {
+                                    select: {
+                                        Client: { select: { image: true } },
+                                        Employ: { select: { image: true } },
+                                        ServiceProvider: { select: { image: true } },
+                                        Concierge: { select: { image: true } },
+                                    },
+                                },
+                            },
                         });
                         yield prisma_1.default.chat.updateMany({
                             where: { roomId: room.id, receiverId: ws.userId },

@@ -185,9 +185,15 @@ const updateProfile = async (payload: User, imageFile: any, userId: string) => {
   return result;
 };
 
+const myNotification = async (userId: string) => {
+  const result = await prisma.notification.findMany({ where: { userId } });
+  return result;
+};
+
 export const userService = {
   createUserIntoDb,
   getUsersFromDb,
   getMyProfile,
   updateProfile,
+  myNotification
 };

@@ -319,10 +319,19 @@ const myJobs = (userId) => __awaiter(void 0, void 0, void 0, function* () {
                 select: {
                     id: true,
                     title: true,
-                    date: true,
-                    category: true,
-                    status: true,
-                    description: true,
+                    priceRange: true,
+                    user: {
+                        select: {
+                            Employ: {
+                                select: { fullName: true, location: true, image: true },
+                            },
+                        },
+                    },
+                    _count: {
+                        select: {
+                            JobApplicants: { where: { status: { equals: "PENDING" } } },
+                        },
+                    },
                 },
             },
         },

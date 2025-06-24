@@ -350,13 +350,12 @@ const getSingleServiceProvide = async (ServiceProviderId: string) => {
   });
 
   return { ...result, completedProject };
-
 };
 
 const myWorkschedule = async (userId: string) => {
   const result = await prisma.projectApplicants.findMany({
     where: { serviceProviderId: userId, status: "ACCEPTED" },
-    select: {id: true , clientProject: { select: { date: true, time: true} } },
+    select: { id: true, clientProject: { select: { date: true, time: true } } },
     orderBy: { clientProject: { date: "desc" } },
   });
 
@@ -400,10 +399,19 @@ const myJobs = async (userId: string) => {
         select: {
           id: true,
           title: true,
-          date: true,
-          category: true,
-          status: true,
-          description: true,
+          priceRange: true,
+          user: {
+            select: {
+              Employ: {
+                select: { fullName: true, location: true, image: true },
+              },
+            },
+          },
+          _count: {
+            select: {
+              JobApplicants: { where: { status: { equals: "PENDING" } } },
+            },
+          },
         },
       },
     },

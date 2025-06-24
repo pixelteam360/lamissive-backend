@@ -194,9 +194,14 @@ const updateProfile = (payload, imageFile, userId) => __awaiter(void 0, void 0, 
     }));
     return result;
 });
+const myNotification = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield prisma_1.default.notification.findMany({ where: { userId } });
+    return result;
+});
 exports.userService = {
     createUserIntoDb,
     getUsersFromDb,
     getMyProfile,
     updateProfile,
+    myNotification
 };

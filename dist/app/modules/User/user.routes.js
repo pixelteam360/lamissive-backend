@@ -15,6 +15,7 @@ router
     .route("/")
     .get(user_controller_1.userController.getUsers)
     .post((0, validateRequest_1.default)(user_validation_1.UserValidation.CreateUserValidationSchema), user_controller_1.userController.createUser);
+router.get("/notifications", (0, auth_1.default)(), user_controller_1.userController.myNotification);
 router
     .route("/profile")
     .get((0, auth_1.default)(), user_controller_1.userController.getMyProfile)

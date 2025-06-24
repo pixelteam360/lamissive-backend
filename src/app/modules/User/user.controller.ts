@@ -40,9 +40,18 @@ const updateProfile = catchAsync(async (req, res) => {
   });
 });
 
+const myNotification = catchAsync(async (req, res) => {
+  const result = await userService.myNotification(req.user.id);
+  sendResponse(res, {
+    message: "Profile updated successfully!",
+    data: result,
+  });
+});
+
 export const userController = {
   createUser,
   getUsers,
   getMyProfile,
   updateProfile,
+  myNotification
 };
