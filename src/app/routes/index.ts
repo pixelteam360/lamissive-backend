@@ -7,6 +7,7 @@ import { ServiceProviderRoutes } from "../modules/ServiceProvider/serviceProvide
 import { JobRoutes } from "../modules/Job/job.routes";
 import { SubscriptionRoutes } from "../modules/Subscription/subscription.routes";
 import { PurchasedSubscriptionRoutes } from "../modules/PurchasedSubscription/purchasedSubscription.routes";
+import { DashboardRoutes } from "../modules/Dashboard/dashboard.routes";
 
 const router = express.Router();
 
@@ -42,6 +43,10 @@ const moduleRoutes = [
   {
     path: "/purchased-subscription",
     route: PurchasedSubscriptionRoutes,
+  },
+  {
+    path: "/dashboard",
+    route: DashboardRoutes,
   },
 ];
 

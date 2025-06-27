@@ -400,6 +400,9 @@ const myJobs = async (userId: string) => {
           id: true,
           title: true,
           priceRange: true,
+          category: true,
+          description: true,
+          status: true,
           user: {
             select: {
               Employ: {

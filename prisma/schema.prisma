@@ -262,6 +262,16 @@ model Chat {
   @@map("chats")
 }
 
+model Fees {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  jobFee     Float
+  projectFee Float
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("Fees")
+}
+
 enum UserRole {
   ADMIN
   CLIENT

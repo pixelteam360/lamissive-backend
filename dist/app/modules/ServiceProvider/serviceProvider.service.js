@@ -320,6 +320,9 @@ const myJobs = (userId) => __awaiter(void 0, void 0, void 0, function* () {
                     id: true,
                     title: true,
                     priceRange: true,
+                    category: true,
+                    description: true,
+                    status: true,
                     user: {
                         select: {
                             Employ: {
